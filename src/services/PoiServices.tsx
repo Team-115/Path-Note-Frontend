@@ -1,10 +1,12 @@
 import axios from "axios";
+import type { TMapLatLng } from "../types/map";
 const TMAP_API_BASE = 'https://apis.openapi.sk.com/tmap';
 
 // POI 검색 API
 export const searchPOI = async (
   sortType: string,
   keyword: string,
+  center: TMapLatLng,
   count: number = 12
 ) => {
   try {
@@ -19,10 +21,13 @@ export const searchPOI = async (
         resCoordType: 'WGS84GEO',
         count: count,
         searchtypCd: sortType,
+        radius: sortType == 'R' ? '5' : '0',
+        centerLon: center.lng,
+        centerLat: center.lat
         },
     });
 
-    return response.data.searchPoiInfo.pois.poi; // 보통 이 구조입니다.
+    return response.data.searchPoiInfo.pois.poi; 
   } catch (error) {
     console.error('POI 검색 실패:', error);
     return [];

@@ -9,4 +9,9 @@ declare global {
   }
 }
 
+export interface TMapLatLng {
+  lat: number;
+  lng: number;
+}
+
 export {};
