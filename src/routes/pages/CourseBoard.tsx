@@ -15,7 +15,7 @@ export default function CourseBoard() {
 
   // 코스 리스트 조회
   useEffect(() => { // 컴포넌트가 처음 렌더링 될 때 코스 리스트를 불러오기 위함
-    (async () => {  // () 없으면 안됨!! 즉시 실행 함수 형태이기 때문임. 즉, () 빼면 함수만 선언한 꼴이고 그 함수를 실행을 못 해서 api 호출x, 상태 업데이트x
+    (async () => {  // () 없으면 안됨!! 즉시 실행 함수(IIFE) 형태이기 때문임. 즉, () 빼면 함수만 선언한 꼴이고 그 함수를 실행을 못 해서 api 호출x, 상태 업데이트x
       try {
         const rawCourses = await axios.get(`/api/courses`); // 백엔드 api로부터 코스 리스트 가져옴
         const convertedCourses: CourseData[] = rawCourses.data.map((course: any) => ({  // 백엔드 응답 데이터를 프론트에서 사용하는 형태로 변환

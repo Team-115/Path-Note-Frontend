@@ -4,7 +4,7 @@ import type { CourseData } from "../types/course";
 
 type Props = {
   course: CourseData;
-  onSelect: (course: CourseData) => void;
+  onSelect: (course: CourseData) => void; // CourseData 객체를 인자로 받고 반환값은 없어.(상태 변경 같은 작업은 하지만 호출 결과로 값을 돌려주지는 x)
 };
 
 // 오른쪽 컴포넌트(코스 리스트 + 코스 선택)

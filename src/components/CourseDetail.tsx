@@ -2,13 +2,13 @@ import { FaRegPaperPlane, FaHashtag } from "react-icons/fa";
 import { FcClock } from "react-icons/fc";
 import type { CourseData } from "../types/course";
 
-type Props = {
-  course: CourseData | null;
+type Props = {  // 부모 -> 자식 데이터 넘겨주기 위해.
+  course: CourseData | null;  // null 사용 이유 : 선택된 코스가 없음을 알려주기 위해.
 };
 
 // 중앙 컴포넌트 (코스 상세 정보)
 export default function CourseDetail({ course }: Props) {
-  if (!course) {
+  if (!course) {  // 선택된 코스가 없을 경우
     return (
       <p className="text-center text-gray-400 text-sm">코스를 선택해주세요.</p>
     );
