@@ -10,6 +10,7 @@ type Props = {
   places: PlacesData[];
 };
 
+// 왼쪽 컴포넌트 (코스에 담긴 장소 정보들)
 export default function CoursePlaces({ course, places }: Props) {
   if (!course) {
     return (

@@ -7,6 +7,7 @@ type Props = {
   onSelect: (course: CourseData) => void;
 };
 
+// 오른쪽 컴포넌트(코스 리스트 + 코스 선택)
 export default function CourseList({ course, onSelect }: Props) {
   return (
     <div

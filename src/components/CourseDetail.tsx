@@ -6,6 +6,7 @@ type Props = {
   course: CourseData | null;
 };
 
+// 중앙 컴포넌트 (코스 상세 정보)
 export default function CourseDetail({ course }: Props) {
   if (!course) {
     return (
