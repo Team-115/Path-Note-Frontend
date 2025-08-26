@@ -61,7 +61,7 @@ export default function CourseBoard() {
         </div>
 
         <div className="bg-white rounded-xl bg-opacity-50 shadow-md p-6 col-span-1 flex items-center justify-center">
-          <CourseDetail course={selectedCourse} places={places} />
+          <CourseDetail course={selectedCourse} />
         </div>
 
         <div className="bg-white rounded-xl bg-opacity-50 shadow-md p-6 col-span-1">
