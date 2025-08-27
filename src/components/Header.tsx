@@ -1,12 +1,214 @@
-import { Link } from "react-router"
+import { useState, useEffect } from 'react';
+import { searchPOI } from '../services/PoiServices';
+import { useSearchStore } from '../stores/SearchStores';
+import SearchResults from './SearchResults';
+import { useMapStore } from '../stores/MapStores';
+import { KAKAO_LOG_IN_URL, getSignInUserRequest } from '../apis/GetUserInfoApi';
+import useLoginUserStore from '../stores/LoginUserStores';
 
-export default function Header() {
+//          component: 헤더 컴포넌트          //
+const Header = () => {
+  const [sortType, setSortType] = useState<'A' | 'R'>('A'); // A: 정확도순, R: 거리순
+  const { center } = useMapStore();               
+  const { setLoginUser, resetLoginUser, loginUser } = useLoginUserStore();
+  const { 
+    keyword, 
+    isSearching, 
+    setKeyword, 
+    setSearchResults, 
+    setIsSearching,
+    setIsResultsVisible 
+  } = useSearchStore();
+  
+  //          effect: OAuth 리다이렉트후 토큰회수 -> 로컬스토리지 저장 -> 사용자 정보 저장          //
+  /**
+   * 1. 로그인후 리다이렉트 된 URL 쿼리스트링에서 accessToken에서 토큰을 회수한다.
+   * 2. 토큰을 로컬스토리지에 저장
+   * 3. 토큰을 사용하여 /me 백엔드 호출 -> 전역 스토어에 로그인 사용자 정보 저장
+   */
+  useEffect(() => {
+    (async () => {
+      // 1) URL 쿼리에서 accessToken 회수
+      const url = new URL(window.location.href);
+      const tokenFromQuery = url.searchParams.get("accessToken");
+
+      if (tokenFromQuery) {
+        // 1-1) 저장
+        localStorage.setItem("accessToken", tokenFromQuery);
+        // 1-2) 주소창에서 토큰 제거(보안/UX)
+        url.searchParams.delete("accessToken");
+        url.searchParams.delete("refreshToken"); // 넘어왔다면 같이 제거
+        window.history.replaceState({}, "", url.pathname + url.search);
+      }
+
+      // 2) 최종 사용할 토큰 결정: 쿼리 > localStorage
+      const token = tokenFromQuery ?? localStorage.getItem("accessToken");
+      if (!token) return;
+
+      // 3) /me 호출 → 스토어 저장
+      try {
+        const me = await getSignInUserRequest(token);
+        setLoginUser(me);
+        console.log("[AUTH] /me ok:", me);
+      } catch (e) {
+        console.error("[AUTH] /me failed:", e);
+        // 토큰이 만료/위조면 정리
+        localStorage.removeItem("accessToken");
+        resetLoginUser();
+      }
+    })();
+  }, [setLoginUser, resetLoginUser]);
+
+  //          event handler: 카카로 로그인 버튼 클릭시 이벤트 핸들러          //
+  const onKakaoLoginButtonClickHandler = () => {
+    window.location.href = KAKAO_LOG_IN_URL();
+  };
+
+  //          event handler: 카카오 로그아웃 버튼 클릭시 이벤트 핸들러          //
+  const onLogoutButtonClickHandler = () => {
+    localStorage.removeItem("accessToken");
+    resetLoginUser();
+    // 필요하면 리다이렉트
+    // window.location.href = "/";
+  };
+
+  //          event handler: 장소 검색 이벤트 핸들러          //
+  /**
+   * 현재 keyword/정렬/중심좌표를 바탕으로 searchPOI 서비스 호출
+   * 성공: 결과 저장 및 결과 패널 오픈 / 실패: 에러 처리 / 종료: 로딩 플래그 해제
+   */
+  const handleSearch = async () => {
+    const kw = keyword.trim();
+    if (!kw) return;
+
+    setIsSearching(true);
+    try {
+      const results = await searchPOI(
+        sortType,
+        kw,
+        sortType === 'R' ? center : undefined,  // R일 때만 중심좌표 사용
+        10,
+        sortType === 'R' ? 1 : 0                // R: 1km, A: 의미 없음
+      );
+
+      setSearchResults(results);   // []도 그대로 저장
+      setIsResultsVisible(true);   // 0건이면 "결과 없음" UI 처리 권장
+    } catch (error) {
+      console.error('검색 실패:', error);
+      // 여기서만 진짜 에러(4xx/5xx) 안내
+      alert('요청 처리 중 오류가 발생했어.');
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  //           event handler: 검색창 Enter 키입력 처리          //
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  //          render:헤더 컴포넌트 랜더링          //
   return (
-    <header>
-      <nav>
-        <Link to="/">Home</Link>
-        <Link to="/courseboard">CourseBoard</Link>
-      </nav>
-    </header>
-  )
-}
+    <>
+      <header className="fixed rounded-sm max-h-16 top-3 left-1 right-1 z-150 backdrop-blur-xs bg-white/15 shadow-sm hover:shadow-lg border-b border-gray-200 transition-all hover:bg-white/85">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* 로고 */}
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                P A T H N O T E
+              </div>
+            </div>
+
+            {/* 검색바 */}
+            <div className="md:flex flex-1 max-w-lg mx-8">
+              <div className="flex items-center gap-2 w-full">
+                {/* 정렬 선택 버튼 */}
+                <div className="hidden md:flex rounded-full bg-main-100/55 p-1">
+                  <button
+                    onClick={() => setSortType('A')}
+                    className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
+                      sortType === 'A' 
+                        ? 'bg-white/60 text-main-300 shadow-sm' 
+                        : 'text-gray-600 hover:text-gray-800'
+                    }`}
+                  >
+                    정확도순
+                  </button>
+                  <button
+                    onClick={() => setSortType('R')}
+                    className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
+                      sortType === 'R' 
+                        ? 'bg-white/60 text-main-300 shadow-sm' 
+                        : 'text-gray-600 hover:text-gray-800'
+                    }`}
+                  >
+                    거리순
+                  </button>
+                </div>
+                
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  placeholder="장소를 검색하세요..."
+                  value={keyword}
+                  onChange={(e) => setKeyword(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  onFocus={() => setIsResultsVisible(true)}
+                  className="w-full px-4 py-2 pr-10 bg-main-100/55 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-mian-300 focus:border-transparent"
+                />
+                <button
+                  onClick={handleSearch}
+                  disabled={isSearching}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-main-100 hover:text-gray-600 disabled:opacity-50"
+                >
+                  {isSearching ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-600"></div>
+                  ) : (
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+              </div>
+            </div>
+
+          {/* 로그인/회원가입 버튼 */}
+          <div className="hidden md:block">
+            <div className="ml-4 flex items-center md:ml-6">
+              {loginUser ? (
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-gray-700">
+                  {loginUser.nickname ?? "사용자"}
+                </span>
+                <button
+                  onClick={onLogoutButtonClickHandler}
+                  className="ml-2 bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-full text-sm font-medium transition-colors"
+                >
+                  로그아웃
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={onKakaoLoginButtonClickHandler}
+                className="ml-3 bg-main-100 hover:bg-main-200 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors"
+              >
+                카카오로그인
+              </button>
+            )}
+            </div>
+          </div>
+        </div>
+      </div>
+      </header>
+      
+      {/* 검색 결과 컴포넌트 */}
+      <SearchResults />
+    </>
+  );
+};
+
+export default Header;
