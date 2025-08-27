@@ -16,7 +16,7 @@ interface MapProps {
   height: string;
 }
 
-const APP_KEY = import.meta.env.VITE_TMAP_APP_KEY as string;
+const APP_KEY = import.meta.env.VITE_TMAP_API_KEY as string;
 console.log('[DEBUG] APP_KEY =', APP_KEY);
 
 //          component: 메인 맵 부모 컴포넌트          //

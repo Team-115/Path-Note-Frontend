@@ -5,7 +5,7 @@ import type { POIResult } from "../stores/SearchStores";
 
 type SortType = 'A' | 'R';
 const TMAP_API_BASE = 'https://apis.openapi.sk.com';
-const APP_KEY = import.meta.env.VITE_TMAP_APP_KEY as string;
+const APP_KEY = import.meta.env.VITE_TMAP_API_KEY as string;
 
 const api = axios.create({
   baseURL: TMAP_API_BASE,
@@ -61,11 +61,13 @@ export const searchPOI = async (
   }
 
   const res = await api.get('/tmap/pois', { params, validateStatus: () => true });
+  console.log('[POI] HTTP', res.status, res.statusText);
+  console.log(res);
 
   if (res.status === 204) return [];
 
   if (res.status >= 400) {
-    console.error('[POI] HTTP', res.status, res.statusText);s
+    console.error('[POI] HTTP', res.status, res.statusText);
     console.error('[POI] body =', res.data);
     throw new Error(`요청 실패: HTTP ${res.status}`);
   }

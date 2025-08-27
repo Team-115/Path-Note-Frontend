@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const APP_KEY = import.meta.env.VITE_TMAP_APP_KEY as string;
+const APP_KEY = import.meta.env.VITE_TMAP_API_KEY as string;
 
 // 공통 axios 인스턴스: 헤더에 appKey 세팅
 const tmap = axios.create({
