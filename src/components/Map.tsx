@@ -58,6 +58,24 @@ const Map = ({
   const selectedPOI = useSearchStore(s => s.selectedPOI);
   // 경로 순서 상태 관리용 단순 증가 ID
   const idRef = useRef(1);
+
+  //           function: 클릭시, 검색시 상세정보 공통 헬퍼 함수          //
+    const resetAndOpenInfo = (poi: InfoPoiType, lat: number, lng: number) => {
+    // 1) 먼저 리셋
+    setInfoVisible(false);
+    setInfoPoi(null);
+
+    // 좌표 갱신
+    setInfoLat(lat);
+    setInfoLng(lng);
+
+    // 2) 다음 페인트 타이밍에 새 데이터로 오픈
+    // (한 프레임 비워주면 "리셋되면서 정보가 들어가는" 느낌이 깔끔)
+    requestAnimationFrame(() => {
+      setInfoPoi(poi);
+      setInfoVisible(true);
+    });
+  };
   
   //          effect: 지도 초기화, 클릭 이벤트 바인딩/해제          //
   useEffect(() => {
@@ -75,66 +93,68 @@ const Map = ({
         const map = new Tmapv3.Map('map_div', mapOptions);
         mapInstanceRef.current = map;
 
-        //          event handler: 클릭 → ReverseLavel PoiId 확보 → 상세정보 이벤트 핸들러          //
-        const handleClick = async (e: any) => {
-        // 1) 클릭 좌표 추출 변수 정의: 공식 필드 사용
-        const lat = e?.data?.lngLat?.lat ?? null;
-        const lng = e?.data?.lngLat?.lng ?? null;
+    
 
-        if (lat == null || lng == null) {
-          console.warn('[CLICK] lat/lng 없음. raw event:', e);
-          return;
-        }
+    //          event handler: 클릭 → ReverseLavel PoiId 확보 → 상세정보 이벤트 핸들러          //
+    const handleClick = async (e: any) => {
+    // 1) 클릭 좌표 추출 변수 정의: 공식 필드 사용
+    const lat = e?.data?.lngLat?.lat ?? null;
+    const lng = e?.data?.lngLat?.lng ?? null;
 
-        console.log('클릭된 좌표 뽑기 성공', { lat, lng });
+    if (lat == null || lng == null) {
+      console.warn('[CLICK] lat/lng 없음. raw event:', e);
+      return;
+    }
 
-        setInfoLat(lat);      // 장소 기본컴포넌트 좌표갱신
-        setInfoLng(lng);
-        setInfoVisible(false); // 장소 기본컴포넌트 창 열림
-        setInfoPoi(null);     // 이전 값 초기화
+    console.log('클릭된 좌표 뽑기 성공', { lat, lng });
 
-        try {
-          // 2) Reverse Label → poiId 확보
-          const rev = await reverseLabelRequest(Number(lat.toFixed(6)), Number(lng.toFixed(6)));
-          if (!rev) {
-            console.warn('[STEP1] reverseLabel 결과 없음');
-            return;
-          }
+    setInfoLat(lat);      // 장소 기본컴포넌트 좌표갱신
+    setInfoLng(lng);
+    setInfoVisible(false); // 장소 기본컴포넌트 창 열림
+    setInfoPoi(null);     // 이전 값 초기화
 
-          // 문서: 해당 지점에 POI 없으면 id = "0"
-          if (rev.id === '0') {
-            console.log('[STEP1] POI 없음. reverse 좌표만 표시', rev);
-            return;
-          }
-          console.log('[STEP1] poiId 획득:', rev.id);
-
-          // 3) POI 상세조회
-          const d = await getPoiDetailRequest(rev.id);
-
-          setInfoPoi({
-            name: d?.name ?? rev.name ?? '이름 없음',
-            address: d?.bldAddr || d?.address || '',
-            tel: d?.tel || '',
-            category: d?.bizCatName || '', // 태그로 표기
-          });
-          console.log('[STEP3] ReverseLabel → 상세조회 payload');
-          console.table(d);
-
-          setInfoVisible(true);
-      
-          
-        } catch (err) {
-          console.error('[ERROR] Reverse/상세 조회 실패:', (err as Error).message);
-        }
-      };
-
-        map.on('Click', handleClick);
-
-        console.log('TMap 지도 초기화 완료');
-      } catch (error) {
-        console.error('TMap 지도 초기화 실패:', error);
+    try {
+      // 2) Reverse Label → poiId 확보
+      const rev = await reverseLabelRequest(Number(lat.toFixed(6)), Number(lng.toFixed(6)));
+      if (!rev) {
+        console.warn('[STEP1] reverseLabel 결과 없음');
+        return;
       }
-    };
+
+      // 문서: 해당 지점에 POI 없으면 id = "0"
+      if (rev.id === '0') {
+        console.log('[STEP1] POI 없음. reverse 좌표만 표시', rev);
+        return;
+      }
+      console.log('[STEP1] poiId 획득:', rev.id);
+
+      // 3) POI 상세조회
+      const d = await getPoiDetailRequest(rev.id);
+
+      setInfoPoi({
+        name: d?.name ?? rev.name ?? '이름 없음',
+        address: d?.bldAddr || d?.address || '',
+        tel: d?.tel || '',
+        category: d?.bizCatName || '', // 태그로 표기
+      });
+      console.log('[STEP3] ReverseLabel → 상세조회 payload');
+      console.table(d);
+
+      setInfoVisible(true);
+  
+      
+    } catch (err) {
+      console.error('[ERROR] Reverse/상세 조회 실패:', (err as Error).message);
+    }
+  };
+
+    map.on('Click', handleClick);
+
+    console.log('TMap 지도 초기화 완료');
+  } catch (error) {
+    console.error('TMap 지도 초기화 실패:', error);
+  }
+};
 
     initializeMap();
 
@@ -172,6 +192,18 @@ const Map = ({
       markerRef.current.setPosition(pos);
       markerRef.current.setMap(map);
     }
+
+    resetAndOpenInfo(
+    {
+      name: selectedPOI.name,
+      address: selectedPOI.address,
+      // 선택적으로 확장 가능 (selectedPOI에 있으면 전달)
+      // tel: selectedPOI.tel,
+      // category: selectedPOI.category,
+    } as InfoPoiType,
+    selectedPOI.lat,
+    selectedPOI.lng
+  );
 
     console.log('[MAP] 선택된 장소로 이동 & 마커 표시', {
       id: selectedPOI.id,
