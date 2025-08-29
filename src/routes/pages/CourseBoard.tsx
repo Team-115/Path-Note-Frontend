@@ -40,7 +40,7 @@ export default function CourseBoard() {
 
     try {
       const response = await axios.get(`/api/courses/${course.course_id}`); // 백엔드 api로부터 코스의 상세 데이터 가져옴.
-      setPlaces(response.data.coursePlaces || []);
+      setPlaces(response.data.course_places || []);
     } catch (error) {
       console.error("코스 상세 불러오기 실패:", error);
       setPlaces([]);
