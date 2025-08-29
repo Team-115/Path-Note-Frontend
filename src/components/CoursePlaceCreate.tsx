@@ -72,23 +72,23 @@ export default function CoursePlaceCreate({  onCancel, places, onSubmit,}: Cours
         </div>
         </div>
 
-      {/* 패널 타이틀 */}
+      {/* 장소리스트 */}
       <div className="text-[13px] font-bold leading-8">장소 리스트</div>
       <ul className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[13px] text-gray-900 mb-4">
         {places.length === 0 ? (
           <li className="text-[12px] text-gray-400">선택된 장소가 없음</li>
         ) : (
           places.map((p, idx) => (
-            <li key={p.id} className="flex items-center gap-1.5">
+            <li key={p.id} className="flex items-start gap-1.5">
               <div className="flex flex-col">
                 <div className="flex items-center gap-1">
-                  <span className="font-semibold text-[14px]">{idx + 1}.</span>
+                  <span className="w-5 text-right font-semibold text-[14px]">{idx + 1}.</span>
                   <span className="text-[14px] text-gray-900 truncate max-w-[12rem]">
                     {p.name}
                   </span>
                 </div>
-                {/* 서브라벨이 필요하면 카테고리/태그를 붙이고, 지금은 더미 */}
-                <span className="text-[12px] text-gray-400 self-end">카테고리</span>
+        
+                <span className="text-[12px] text-gray-400 self-end min-h-[16px] ${cat ? '' : 'invisible'">{p.category}</span>
               </div>
             </li>
           ))

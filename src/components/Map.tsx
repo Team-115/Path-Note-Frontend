@@ -220,24 +220,44 @@ const Map = ({
     setInfoPoi(null);
   };
 
-  //          event handler: 최종 코스 작성 패널 열기 이벤트 핸들러          //
+  //          event handler: 장소 리스트 패널 열기 이벤트 핸들러          //
   const handleOpenCoursePanel = () => {
-    if (!selectedPOI) {
-    console.warn('[COURSE] 선택된 검색 결과가 없습니다.');
-    return; // null 가드로 타입 좁히기
-  }
+    // ① 클릭 카드 우선: infoPoi + infoLat/lng
+    const src = (infoPoi && infoLat != null && infoLng != null)
+      ? {
+          name: infoPoi.name ?? '이름 없음',
+          address: infoPoi.address ?? '',
+          category: infoPoi.category ?? '',
+          lat: infoLat!,
+          lng: infoLng!,
+        }
+      // ② 폴백: 검색 선택값(selectedPOI)
+      : (selectedPOI
+        ? {
+            name: selectedPOI.name,
+            address: selectedPOI.address,          
+            lat: selectedPOI.lat,
+            lng: selectedPOI.lng,
+          }
+        : null);
+
+    if (!src) {
+      console.warn('[COURSE] 추가할 장소 정보가 없음');
+      return;
+    }
+
     setIsCoursePanelOpen(true);
 
     const id = idRef.current++;
-    setCoursePlaces((prev) => [
+    setCoursePlaces(prev => [
       ...prev,
       {
         id,
-        name: selectedPOI.name,
-        address: selectedPOI.address,
-        phone: `010-0000-00${String(id).padStart(2, '0')}`,
-        lat: selectedPOI.lat,
-        lng: selectedPOI.lng,
+        name: src.name,
+        address: src.address,
+        category: src.category,
+        lat: src.lat,
+        lng: src.lng,
         arrivalTime: '',
         departureTime: '',
       },
@@ -288,7 +308,7 @@ const Map = ({
       />
 
       {/* 맵 장소기본정보 창 */}
-      <div className="absolute top-1/2 left-7/8 -translate-x-1/2 -translate-y-1/2">
+      <div className="absolute bottom-20 left-1/2 -translate-x-1/2">
         <MapPlaceInfo
           visible={infoVisible}
           lat={infoLat}
@@ -301,7 +321,7 @@ const Map = ({
 
       {/* 최종 코스 등록 패널 */}
       {isCoursePlaceCreatePanelOpen && (
-        <div className="absolute top-1/2 left-3/5 -translate-x-1/2 -translate-y-1/2">
+        <div className="absolute right-1/8 top-50">
           <CoursePlaceCreate onCancel={handleCloseCoursePlaceCreate} places={coursePlaces} onSubmit={handleSubmitCourse} />
         </div>
       )}
@@ -337,7 +357,7 @@ const Map = ({
                   index={idx + 1}
                   name={p.name}
                   address={p.address}
-                  phone={p.phone}
+                  category={p.category}
                   arrivalTime={p.arrivalTime}
                   departureTime={p.departureTime}
                   onTimeChange={handlePlaceTimeChange}

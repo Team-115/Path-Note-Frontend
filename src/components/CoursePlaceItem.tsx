@@ -4,15 +4,18 @@ interface CoursePlaceItemProps {
   index: number;
   name: string;
   address: string;
-  phone?: string;
+  category?: string;
   arrivalTime?: string;
   departureTime?: string;
   onRemove: (id: number) => void;           // 선택한 장소를 삭제하는 콜백
   onTimeChange?: (id: number, t: { arrivalTime?: string; departureTime?: string }) => void; // 출발,도착 시간 변경시 실행되는 콜백
 }
 
+
+
 //          component: 코스 장소 아이템 컴포넌트          //
-export default function CoursePlaceItem({ id, index, name, address, phone, arrivalTime, departureTime, onRemove, onTimeChange, }: CoursePlaceItemProps) {
+export default function CoursePlaceItem({ id, index, name, address, category, arrivalTime, departureTime, onRemove, onTimeChange, }: CoursePlaceItemProps) {
+  const cat = (category ?? '').trim();
 
     //          render: 코스 장소 아이템 컴포넌트 랜더링          //
     return (
@@ -69,16 +72,18 @@ export default function CoursePlaceItem({ id, index, name, address, phone, arriv
         </div>
 
         {/* 3) 카테고리 행: 태그 아이콘 + 세부 카테고리 */}
-        <div className="flex items-start gap-3">
-          {/* 태그(라벨) 아이콘 */}
-          <svg aria-hidden viewBox="0 0 24 24" className="w-5 h-5 text-gray-500">
-            <path
-              d="M20 13.59L10.41 4H5a1 1 0 0 0-1 1v5.41L13.59 20a2 2 0 0 0 2.83 0L20 16.41a2 2 0 0 0 0-2.82zM7.5 7a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z"
-              fill="currentColor"
-            />
-          </svg>
-          <div className="text-[12px] text-gray-500">빵집</div>
-        </div>
+        {cat && (
+          <div className="flex items-start gap-3">
+            {/* 태그(라벨) 아이콘 */}
+            <svg aria-hidden viewBox="0 0 24 24" className="w-5 h-5 text-gray-500">
+              <path
+                d="M20 13.59L10.41 4H5a1 1 0 0 0-1 1v5.41L13.59 20a2 2 0 0 0 2.83 0L20 16.41a2 2 0 0 0 0-2.82zM7.5 7a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z"
+                fill="currentColor"
+              />
+            </svg>
+            <div className="text-[13px] text-gray-700 leading-5 break-keep">{cat}</div>
+          </div>
+        )}
 
         {/* 4) 시간 영역: 아이콘 열 폭만큼 들여쓰기 */}
         <div className="mt-2 space-y-2">
