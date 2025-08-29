@@ -1,14 +1,11 @@
-import Map from "../../components/Map"
+import MapWithCategory from '../../components/MapWithCategory';
+import Map from '../../components/Map';
 
-const Home = () => {
-    return (
-        <div>
-            <Map
-                width = "100%"
-                height = "calc(100vh)"
-            />
-        </div>
-    );
-};
-
-export default Home;
+export default function Home() {
+  return (
+    <div className="relative w-full h-screen">
+      <MapWithCategory />
+      <Map width="100%" height = "calc(100vh)"/>
+    </div>
+  );
+}
