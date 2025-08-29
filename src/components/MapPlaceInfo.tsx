@@ -35,27 +35,31 @@ export default function MapPlaceInfo({
     <div className="relative">
       <div className="relative z-10 rounded-2xl bg-white/95 backdrop-blur shadow-md ring-1 ring-black/5 px-4 py-3 min-w-[260px]">
         {/* 헤더: 제목 + 닫기 버튼 */}
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="text-[16px] font-extrabold text-gray-900 truncate">{title}</h3>
+        <div className="flex justify-between items-start">
+          <div className="flex flex-col">
+            <h3 className="text-[16px] font-extrabold text-gray-900 truncate">{title}</h3>
+            {/* 태그(카테고리) - 제목 바로 아래 */}
+            {tag && (
+              <div className="self-end ">
+                <span className="text-main-100 text-[11px]">
+                  {tag}
+                </span>
+              </div>
+            )}
+
+          </div>
+          
           <button
             type="button"
             onClick={onClose}
             aria-label="닫기"
-            className="shrink-0 rounded-lg bg-gray-700/80 text-white text-[12px] px-2 py-1 hover:bg-gray-700 focus:outline-none"
+            className="shrink-0 rounded-lg bg-main-200 text-white text-[12px] px-2 py-1 hover:bg-main-300 focus:outline-none"
           >
             닫기
           </button>
         </div>
 
-        {/* 태그(카테고리) - 제목 바로 아래 */}
-        {tag && (
-          <div className="mt-1">
-            <span className="inline-flex items-center rounded-full bg-main-100/80 border border-gray-200 text-gray-700 text-[11px] px-2 py-0.5">
-              {tag}
-            </span>
-          </div>
-        )}
-
+       
         {/* 주소 */}
         {addr && (
           <div className="mt-2 flex items-start gap-2 text-gray-800">

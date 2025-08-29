@@ -342,7 +342,7 @@ const Map = ({
               <button
                 type="button"
                 onClick={() => setIsCoursePanelOpen(false)}
-                className="rounded-xl bg-main-200 px-3 py-1.5 text-white text-[13px]"
+                className="rounded-xl bg-main-200 px-3 py-1.5 text-white text-[13px] hover:bg-main-300"
               >
                 닫기
               </button>
