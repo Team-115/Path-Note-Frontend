@@ -7,6 +7,7 @@ import { useSearchStore } from '../stores/SearchStores';
 import { createCourse } from '../apis/CreateCoursePlaceApi';
 import { buildCourseCreateRequest } from '../utils/BuildCourseCreateRequest';
 import { reverseLabelRequest, getPoiDetailRequest } from '../services/TmapPoiServices';
+import type { InfoPoiType } from '../types/InfoPoiType';
 
 // 추후 백엔드 연결이후 요청헤더에 토큰을 추가하는 로직 필요
 const accessToken = "<JWT토큰>"; 
@@ -37,8 +38,10 @@ const Map = ({
   const markerRef = useRef<any>(null);
   const { Tmapv3 } = window as any;
 
-  //          state: 장소 정보 컴포넌트 표시 상태 관리          //
-  const [infoVisible, setInfoVisible] = useState(true);
+  //          state: 기본 장소 컴포넌트 정보 상태 관리          //
+  const [infoPoi, setInfoPoi] = useState<InfoPoiType | null>(null);
+  //          state: 장소 정보 컴포넌트 창 표시 상태 관리          //
+  const [infoVisible, setInfoVisible] = useState(false);
   //          state: 장소 정보 컴포넌트 좌표 상태 관리          //
   const [infoLat, setInfoLat] = useState<number | null>(null);
   const [infoLng, setInfoLng] = useState<number | null>(null);
@@ -48,6 +51,7 @@ const Map = ({
   const [coursePlaces, setCoursePlaces] = useState<CoursePlaceType[]>([]);
   //          state: 최종 코스 생성 폼 패널 상태 관리          //
   const [isCoursePlaceCreatePanelOpen, setIsCoursePlaceCreatePanelOpen] = useState(false);
+
   
   // 장소 정보 컴포넌트에 표시할 POI정보는 selectedPOI 기반
   // 추후 지도 클릭으로 얻은 상세정보(d)도 보여주려면 컴포넌트 생성 후 별도 로컬 상태(infoPoi) 도입 또는 selectedPOI 전역 업데이트 필요
@@ -71,7 +75,7 @@ const Map = ({
         const map = new Tmapv3.Map('map_div', mapOptions);
         mapInstanceRef.current = map;
 
-        //          event handler: 클릭 → ReverseLavel PoiId 확보 → 상세정보 검색 이벤트 핸들러          //
+        //          event handler: 클릭 → ReverseLavel PoiId 확보 → 상세정보 이벤트 핸들러          //
         const handleClick = async (e: any) => {
         // 1) 클릭 좌표 추출 변수 정의: 공식 필드 사용
         const lat = e?.data?.lngLat?.lat ?? null;
@@ -84,10 +88,10 @@ const Map = ({
 
         console.log('클릭된 좌표 뽑기 성공', { lat, lng });
 
-        
         setInfoLat(lat);      // 장소 기본컴포넌트 좌표갱신
         setInfoLng(lng);
-        setInfoVisible(true); // 장소 기본컴포넌트 창 열림
+        setInfoVisible(false); // 장소 기본컴포넌트 창 열림
+        setInfoPoi(null);     // 이전 값 초기화
 
         try {
           // 2) Reverse Label → poiId 확보
@@ -100,21 +104,25 @@ const Map = ({
           // 문서: 해당 지점에 POI 없으면 id = "0"
           if (rev.id === '0') {
             console.log('[STEP1] POI 없음. reverse 좌표만 표시', rev);
-            console.table({
-              id: rev.id,
-              name: rev.name ?? '',
-              lat: rev.lat,
-              lon: rev.lon,
-            });
             return;
           }
           console.log('[STEP1] poiId 획득:', rev.id);
 
           // 3) POI 상세조회
           const d = await getPoiDetailRequest(rev.id);
-      
+
+          setInfoPoi({
+            name: d?.name ?? rev.name ?? '이름 없음',
+            address: d?.bldAddr || d?.address || '',
+            tel: d?.tel || '',
+            category: d?.bizCatName || '', // 태그로 표기
+          });
           console.log('[STEP3] ReverseLabel → 상세조회 payload');
           console.table(d);
+
+          setInfoVisible(true);
+      
+          
         } catch (err) {
           console.error('[ERROR] Reverse/상세 조회 실패:', (err as Error).message);
         }
@@ -174,6 +182,12 @@ const Map = ({
     });
   }, [selectedPOI, Tmapv3]);
 
+  //          event handler: 기본 정보창 닫기 시 컴포넌트 정리 이벤트 핸들러          //
+  const handleCloseInfo = () => {
+    setInfoVisible(false);
+    setInfoPoi(null);
+  };
+
   //          event handler: 최종 코스 작성 패널 열기 이벤트 핸들러          //
   const handleOpenCoursePanel = () => {
     if (!selectedPOI) {
@@ -224,6 +238,13 @@ const Map = ({
   const res = await createCourse(req, accessToken);
 };
 
+  // 화면에 표시할 POI를 한 곳에서 결정(클릭 정보 > 검색 선택)
+  const displayPoi =
+    infoPoi ??
+    (selectedPOI
+      ? { name: selectedPOI.name, address: selectedPOI.address }
+      : null);
+
   //          render: 메인 맵, 장소기본정보, 장소리스트패널, 코스생성패널 랜더링          //
   return (
     <div>
@@ -240,11 +261,8 @@ const Map = ({
           visible={infoVisible}
           lat={infoLat}
           lng={infoLng}
-          poi={selectedPOI ? {
-          name: selectedPOI.name,
-          address: selectedPOI.address,
-          } : null}
-          onClose={() => setInfoVisible(false)}
+          poi={displayPoi}
+          onClose={handleCloseInfo}
           onOpenCoursePanel={handleOpenCoursePanel}
         />
       </div>
