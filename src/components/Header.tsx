@@ -112,7 +112,7 @@ const Header = () => {
   //          render:헤더 컴포넌트 랜더링          //
   return (
     <>
-      <header className="fixed rounded-sm max-h-16 top-3 left-1 right-1 z-150 backdrop-blur-xs bg-white/15 shadow-sm hover:shadow-lg border-b border-gray-200 transition-all hover:bg-white/85">
+      <header className="fixed rounded-full mx-5 max-h-16 top-3 left-1 right-1 z-150 backdrop-blur-xs bg-white/15 shadow-sm hover:shadow-lg border-b border-gray-200 transition-all hover:bg-white/85">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* 로고 */}
@@ -192,12 +192,11 @@ const Header = () => {
                 </button>
               </div>
             ) : (
-              <button
+                <img
+                src = "src/images/kakao_login_small.png"
                 onClick={onKakaoLoginButtonClickHandler}
-                className="ml-3 bg-main-100 hover:bg-main-200 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors"
-              >
-                카카오로그인
-              </button>
+                className=''
+                />
             )}
             </div>
           </div>
