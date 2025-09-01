@@ -4,7 +4,6 @@ import type { CoursePlaceType } from "../types/CoursePlaceType";
 
 //          function: 코스 생성 최종 요청 DTO 빌더 함수          //
 export function buildCourseCreateRequest(
-  userId: string,
   payload: { course_name: string; course_category: string; course_description: string; },
   places: CoursePlaceType[],
 ): CourseCreateRequestDto {
@@ -21,7 +20,7 @@ export function buildCourseCreateRequest(
   }));
 
   return {
-    user_id: userId,
+  
     course_name: payload.course_name,
     course_category: payload.course_category,
     course_description: payload.course_description,

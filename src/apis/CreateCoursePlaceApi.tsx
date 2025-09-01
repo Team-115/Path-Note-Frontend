@@ -11,7 +11,7 @@ export const createCourse = async (requestBody: CourseCreateRequestDto, accessTo
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`, // JWT 토큰 사용 시
+          Authorization: `Bearer ${accessToken.trim()}`, // JWT 토큰 사용 시
         },
       }
     );

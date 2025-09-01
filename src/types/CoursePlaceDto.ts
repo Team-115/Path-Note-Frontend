@@ -11,7 +11,6 @@ export interface CoursePlaceDto {
 }
 
 export interface CourseCreateRequestDto {
-  user_id: string;
   course_name: string;
   course_category: string;
   course_description: string;

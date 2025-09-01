@@ -1,19 +1,12 @@
 import { useState } from "react";
 import type { CoursePlaceType } from "../types/CoursePlaceType";
-
-// 서버에 보낼 페이로드 타입
-// 코스 생성 시 서버로 전송할 데이터 구조
-export type CourseCreatePayload = {
-  course_name: string;
-  course_category: string;        // 코스 카테고리
-  course_description: string;
-};
+import type { CourseCreateRequestDto, CoursePlaceDto } from "../types/CoursePlaceDto";
 
 // 부모 컴포넌트에서 전달받은 콜백함수 타입정의
 interface CoursePlaceCreateProps {
   onCancel: () => void;                             // 취소 버튼 클릭시 실행되는 콜백
   places: CoursePlaceType[];                        // 선택된 장소리스트
-  onSubmit: (payload: CourseCreatePayload) => void; // 입력 완료시 서버에 보낼 데이터를 전달하는 콜백
+  onSubmit: (payload: CourseCreateRequestDto) => void; // 입력 완료시 서버에 보낼 데이터를 전달하는 콜백
 }
 
 //          component: 코스 장소 등록 컴포넌트          //
@@ -23,16 +16,37 @@ export default function CoursePlaceCreate({  onCancel, places, onSubmit,}: Cours
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
+
+  // 예시 포맷터 (문서 예시: "YYYY-MM-DD HH:mm")
+  const fmt = (d: Date) => {
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
   
+  // CoursePlaceType -> CoursePlaceDto 매핑
+  const toCoursePlaceDto = (p: CoursePlaceType, idx: number): CoursePlaceDto => ({
+    poi_id: String(p.id),
+    sequence_index: idx + 1,
+    place_name: p.name ?? "",
+    place_category: p.category ?? "",
+    place_address: p.address ?? "",
+    place_coordinate_x: String((p as any).lng ?? (p as any).lon ?? (p as any).x ?? ""), // 문자열
+    place_coordinate_y: String((p as any).lat ?? (p as any).y ?? ""),                   // 문자열
+    place_enter_time: (p as any).enterTime ?? fmt(new Date()),                          // 문자열
+    place_leave_time: (p as any).leaveTime ?? fmt(new Date(Date.now() + 60*60*1000)),   // +1h 예시
+  });
   //          event handler: 장소 등록 이벤트 핸들러          //
   // 폼 제출시 실행 입력된 값으로 payload 객체 생성 후 실행
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
   
-    const payload: CourseCreatePayload = {
+    const course_places: CoursePlaceDto[] = places.map(toCoursePlaceDto);
+
+    const payload: CourseCreateRequestDto = {
       course_name: name.trim(),
       course_category: category.trim(),
       course_description: description.trim(),
+      course_places,                                
     };
     
     onSubmit(payload);

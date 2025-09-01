@@ -1,17 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import MapPlaceInfo from './MapPlaceInfo';
 import CoursePlaceItem from './CoursePlaceItem';
-import CoursePlaceCreate, { type CourseCreatePayload } from './CoursePlaceCreate';
+import CoursePlaceCreate from './CoursePlaceCreate';
 import type { CoursePlaceType } from '../types/CoursePlaceType';
 import { useSearchStore } from '../stores/SearchStores';
 import { createCourse } from '../apis/CreateCoursePlaceApi';
-import { buildCourseCreateRequest } from '../utils/BuildCourseCreateRequest';
 import { reverseLabelRequest, getPoiDetailRequest } from '../services/TmapPoiServices';
 import type { InfoPoiType } from '../types/InfoPoiType';
+import type { CourseCreateRequestDto } from '../types/CoursePlaceDto';
 
-// 추후 백엔드 연결이후 요청헤더에 토큰을 추가하는 로직 필요
-const accessToken = "<JWT토큰>"; 
-const userId = "1";
 interface MapProps {
   width: string;
   height: string;
@@ -285,9 +282,20 @@ const Map = ({
   };
 
   //          event handler: 코스 최종 등록 이벤트 핸들러          //
-  const handleSubmitCourse = async (payload: CourseCreatePayload) => {
-  const req = buildCourseCreateRequest(userId, payload, coursePlaces);
-  const res = await createCourse(req, accessToken);
+  const handleSubmitCourse = async (dto: CourseCreateRequestDto) => {
+  try {
+      const accessToken = localStorage.getItem("accessToken")!; // 토큰 무조건 존재 가정
+      console.log("[REQ] createCourse dto =", dto);
+      const res = await createCourse(dto, accessToken);
+      console.log("[RES] createCourse =", res);
+
+      // 성공 후 UI 정리
+      setIsCoursePlaceCreatePanelOpen(false);
+      setIsCoursePanelOpen(false);
+      setCoursePlaces([]);
+    } catch (e: any) {
+      console.error("[ERROR] createCourse failed:", e?.message || e);
+    }
 };
 
   // 화면에 표시할 POI를 한 곳에서 결정(클릭 정보 > 검색 선택)
