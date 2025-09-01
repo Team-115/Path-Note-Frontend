@@ -129,6 +129,7 @@ const Map = ({
       const d = await getPoiDetailRequest(rev.id);
 
       setInfoPoi({
+        poiId: d?.id || rev.id,
         name: d?.name ?? rev.name ?? '이름 없음',
         address: d?.bldAddr || d?.address || '',
         tel: d?.tel || '',
@@ -203,7 +204,7 @@ const Map = ({
   );
 
     console.log('[MAP] 선택된 장소로 이동 & 마커 표시', {
-      id: selectedPOI.id,
+      poiId: selectedPOI.poiId,
       name: selectedPOI.name,
       address: selectedPOI.address,
       lat: selectedPOI.lat,
@@ -222,6 +223,7 @@ const Map = ({
     // ① 클릭 카드 우선: infoPoi + infoLat/lng
     const src = (infoPoi && infoLat != null && infoLng != null)
       ? {
+          poiId: infoPoi.poiId ?? '0',
           name: infoPoi.name ?? '이름 없음',
           address: infoPoi.address ?? '',
           category: infoPoi.category ?? '',
@@ -231,6 +233,7 @@ const Map = ({
       // ② 폴백: 검색 선택값(selectedPOI)
       : (selectedPOI
         ? {
+            poiId: String(selectedPOI.poiId),
             name: selectedPOI.name,
             address: selectedPOI.address,          
             lat: selectedPOI.lat,
@@ -250,6 +253,7 @@ const Map = ({
       ...prev,
       {
         id,
+        poiId: src.poiId,
         name: src.name,
         address: src.address,
         category: src.category,

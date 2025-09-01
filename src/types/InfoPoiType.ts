@@ -1,4 +1,5 @@
 export type InfoPoiType = {
+  poiId?: string;
   name?: string;
   address?: string;
   tel?: string;

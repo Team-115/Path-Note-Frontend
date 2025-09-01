@@ -1,5 +1,6 @@
 export interface CoursePlaceType {
   id: number;
+  poiId: string;
   name: string;
   address: string;
   category?: string;

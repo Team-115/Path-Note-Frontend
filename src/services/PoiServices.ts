@@ -26,7 +26,7 @@ function toPOIResult(poi: any): POIResult {
   const lng = Number(poi?.frontLon ?? poi?.noorLon);
 
   return {
-    id: String(poi?.id ?? ''),
+    poiId: String(poi?.poiId ?? ''),
     name: String(poi?.name ?? ''),
     address: addr ?? '',
     lat: isFinite(lat) ? lat : 0,

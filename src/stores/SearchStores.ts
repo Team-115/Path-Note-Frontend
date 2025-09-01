@@ -4,7 +4,7 @@ import { create } from 'zustand';
 // POI 검색 결과 타입 정의
 // 검색된 장소의 기본정보 저장 
 export interface POIResult {
-  id: string;
+  poiId: string;
   name: string;
   address: string;
   lat: number;

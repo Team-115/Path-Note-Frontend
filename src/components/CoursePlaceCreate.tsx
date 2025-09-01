@@ -25,7 +25,7 @@ export default function CoursePlaceCreate({  onCancel, places, onSubmit,}: Cours
   
   // CoursePlaceType -> CoursePlaceDto 매핑
   const toCoursePlaceDto = (p: CoursePlaceType, idx: number): CoursePlaceDto => ({
-    poi_id: String(p.id),
+    poi_id: String(p.poiId),
     sequence_index: idx + 1,
     place_name: p.name ?? "",
     place_category: p.category ?? "",
