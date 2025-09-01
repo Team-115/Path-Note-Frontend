@@ -1,8 +1,7 @@
 import { useState } from "react";
 
 const categories = ['서울', '인천', '대전', '대구', '광주', '부산', '+'];
-const plus = ['경기도', '강원도', '충청북도', '충청남도', '전라북도', '전라남도', '경상북도', '경상남도', '울산', '제주도'];
-
+const plus = ['경기도', '강원도', '충청북도', '충청남도', '전라북도', '전라남도', '경상북도', '경남', '울산', '제주도'];
 interface CategoryFilterProps {
   selected: string | null;
   onSelect: (category: string) => void;

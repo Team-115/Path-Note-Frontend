@@ -1,4 +1,5 @@
 export type CourseData = {
+  course_places: any;
   course_id: number; 
   course_name: string;
   time: string;

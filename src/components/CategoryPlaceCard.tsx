@@ -2,22 +2,15 @@ import { useRef } from "react";
 import { FaRegPaperPlane, FaHashtag } from "react-icons/fa";
 import { MdOutlineKeyboardDoubleArrowRight, MdOutlineKeyboardDoubleArrowLeft} from "react-icons/md";
 import { FcClock } from "react-icons/fc";
-
-interface Place {
-  id: number;
-  category: string;
-  title: string;
-  time: string;
-  tags: string[];
-  details: string;
-}
+import type { CourseData } from "../types/course";
+import type { PlacesData } from "../types/places";
 
 interface CategoryPlaceCardProps {
-  places: Place[];
+  course: CourseData[];
 }
 
-export default function CategoryPlaceCard({ places }: CategoryPlaceCardProps) {
-  if (places.length === 0) return null;
+export default function CategoryPlaceCard({ course }: CategoryPlaceCardProps) {
+  if (course.length === 0) return null;
   const containerRef = useRef<HTMLDivElement>(null);
 
   const scrollNext = () => {
@@ -44,18 +37,27 @@ export default function CategoryPlaceCard({ places }: CategoryPlaceCardProps) {
       <div
         ref={containerRef}
         className="overflow-x-auto flex gap-6 flex-grow scrollbar-hide"
-        style={{ scrollSnapType: "x mandatory" }} // 스냅 효과 추가 가능
+        style={{ scrollSnapType: "x mandatory" }}
       >
-      {places.map(place => (
+      {course.map((courseItem) => (
         <div
-          key={place.id}
+          key={courseItem.course_id}
           className="min-w-[280px] bg-white/80 p-4 rounded-4xl shadow-md border border-gray-200"
         >
-          <p className="font-bold mb-2 flex items-center gap-3"><FaRegPaperPlane className="size-4"/>{place.title}</p>
-          <p className="text-sm mb-2 flex items-center gap-3"><FcClock className="size-4"/>{place.time}</p>
-          <p className="text-xs text-gray-700 mb-2 flex items-center gap-3"><FaHashtag className="size-3.5 text-main-300"/>{place.tags.join(' ')}</p>
+          <p className="font-bold mb-2 flex items-center gap-3"><FaRegPaperPlane className="size-4"/>{courseItem.course_name}</p>
+          <p className="text-sm mb-2 flex items-center gap-3"><FcClock className="size-4"/>{courseItem.time}</p>
+          <p className="text-xs text-gray-700 mb-2 flex items-center gap-3"><FaHashtag className="size-3.5 text-main-300"/>{courseItem.tags}</p>
           <hr className="border-t border-gray-300 my-2" />
-          <p className="text-sm">🚗 {place.details}</p>
+          <div className="text-sm">
+              <p className="font-semibold">방문 장소:</p>
+              <ul className="list-inside">
+                {courseItem.course_places.map((place: PlacesData) => (
+                  <li key={place.poi_id}>
+                    🚩 {place.place_name}
+                  </li>
+                ))}
+              </ul>
+            </div>
         </div>
       ))}
       </div>
