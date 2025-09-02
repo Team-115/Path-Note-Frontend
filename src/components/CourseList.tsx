@@ -11,7 +11,7 @@ type Props = {
 export default function CourseList({ course, onSelect }: Props) {
   return (
     <div
-      className="flex items-center gap-4 bg-white p-3 rounded-lg shadow-md border border-gray-200 hover:bg-gray-100 cursor-pointer"
+      className="flex items-center gap-4 bg-white p-3 rounded-lg shadow-md border border-gray-200 hover:bg-gray-100 cursor-pointer mt-4"
       onClick={() => onSelect(course)}
     >
       <img src={course.imgSrc} alt={course.course_name} className="w-24 h-20 object-cover rounded" />
