@@ -7,6 +7,7 @@ import { useSearchStore } from '../stores/SearchStores';
 import { createCourse } from '../apis/CreateCoursePlaceApi';
 import { buildCourseCreateRequest } from '../utils/BuildCourseCreateRequest';
 import { reverseLabelRequest, getPoiDetailRequest } from '../services/TmapPoiServices';
+import { useMapStore } from '../stores/MapStores';
 
 // 추후 백엔드 연결이후 요청헤더에 토큰을 추가하는 로직 필요
 const accessToken = "<JWT토큰>"; 
@@ -52,6 +53,7 @@ const Map = ({
   // 장소 정보 컴포넌트에 표시할 POI정보는 selectedPOI 기반
   // 추후 지도 클릭으로 얻은 상세정보(d)도 보여주려면 컴포넌트 생성 후 별도 로컬 상태(infoPoi) 도입 또는 selectedPOI 전역 업데이트 필요
   const selectedPOI = useSearchStore(s => s.selectedPOI);
+  const { center, zoom } = useMapStore();
   // 경로 순서 상태 관리용 단순 증가 ID
   const idRef = useRef(1);
   
@@ -141,6 +143,20 @@ const Map = ({
       }
     };
   }, [Tmapv3, width, height]);
+
+  useEffect(() => {
+    if (!Tmapv3 || !mapInstanceRef.current) return;
+
+    const map = mapInstanceRef.current;
+    const pos = new Tmapv3.LatLng(center.lat, center.lng);
+
+    map.setCenter(pos);
+    if (typeof map.setZoom === 'function') {
+      map.setZoom(zoom);
+    }
+    
+    console.log('[MAP_STORE_EFFECT] 지도 이동:', { center, zoom });
+  }, [center, zoom, Tmapv3]);
 
   //          effect: 선택된 POI가 바뀌면 지도 이동 + 줌 + 마커 갱신 + 콘솔          //
   useEffect(() => {
