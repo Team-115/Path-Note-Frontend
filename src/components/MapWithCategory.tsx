@@ -29,9 +29,17 @@ export default function MapWithCategory() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [courseList, setCourselist] = useState<CourseData[]>([]);
 
-
   const { moveToLocation, setZoom } = useMapStore(); 
-
+    const handlecourseSelect = (course: CourseData) => {
+        const centerLat = course.center_x;
+        const centerLng = course.center_y;
+        if (centerLat && centerLng) {
+            moveToLocation(centerLat, centerLng); 
+            setZoom(13); 
+        } else {
+            console.log("코스 중심 정보가 불완전하여 지도를 움직일 수 없습니다.");
+        }
+    };
   const filteredCourses = selectedCategory
     ? courseList.filter(course =>
         course.course_places.some((place: { place_address: string | string[]; }) => place.place_address.includes(selectedCategory))
@@ -61,6 +69,8 @@ export default function MapWithCategory() {
               description: course.course_description,
               category: course.course_category,
               course_places: course.course_places,
+              center_x: course.center_x, 
+              center_y: course.center_y,
             }));
             setCourselist(convertedCourses);
           } else {
@@ -82,7 +92,7 @@ export default function MapWithCategory() {
   return (
     <>
       <CategoryFilter selected={selectedCategory} onSelect={setSelectedCategory} />
-      <CategoryPlaceCard course={filteredCourses} />
+      <CategoryPlaceCard course={filteredCourses} onCourseSelect={handlecourseSelect}/>
     </>
   );
 }

@@ -7,9 +7,10 @@ import type { PlacesData } from "../types/places";
 
 interface CategoryPlaceCardProps {
   course: CourseData[];
+  onCourseSelect: ( course: CourseData ) => void;
 }
 
-export default function CategoryPlaceCard({ course }: CategoryPlaceCardProps) {
+export default function CategoryPlaceCard({ course, onCourseSelect }: CategoryPlaceCardProps) {
   if (course.length === 0) return null;
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -42,7 +43,8 @@ export default function CategoryPlaceCard({ course }: CategoryPlaceCardProps) {
       {course.map((courseItem) => (
         <div
           key={courseItem.course_id}
-          className="min-w-[280px] bg-white/80 p-4 rounded-4xl shadow-md border border-gray-200"
+          onClick={() => onCourseSelect(courseItem)}
+          className="min-w-[280px] bg-white/80 p-4 rounded-4xl shadow-md border border-gray-200 hover:bg-white"
         >
           <p className="font-bold mb-2 flex items-center gap-3"><FaRegPaperPlane className="size-4"/>{courseItem.course_name}</p>
           <p className="text-sm mb-2 flex items-center gap-3"><FcClock className="size-4"/>{courseItem.time}</p>
