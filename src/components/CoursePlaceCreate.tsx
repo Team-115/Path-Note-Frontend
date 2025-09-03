@@ -66,7 +66,7 @@ export default function CoursePlaceCreate({  onCancel, places, onSubmit,}: Cours
     return `${m}분`;
   };
 
-  // 첫 도착 ↔ 마지막 도착 차이
+  // 첫 도착과 마지막 도착 차이
   const courseDurationLabel = useMemo(() => {
     if (places.length === 0) return "—";
     const firstArr = toMinutes((places[0] as any).arrivalTime);
