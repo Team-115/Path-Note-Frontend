@@ -29,8 +29,9 @@ export default function MapWithCategory() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [courseList, setCourselist] = useState<CourseData[]>([]);
 
-  const { moveToLocation, setZoom } = useMapStore(); 
+  const { moveToLocation, setZoom, setMarkers } = useMapStore(); 
     const handlecourseSelect = (course: CourseData) => {
+        setMarkers(course.course_places);
         const centerLat = course.center_x;
         const centerLng = course.center_y;
         if (centerLat && centerLng) {
@@ -68,7 +69,11 @@ export default function MapWithCategory() {
               imgSrc: "src/images/school.png",
               description: course.course_description,
               category: course.course_category,
-              course_places: course.course_places,
+              course_places: course.course_places.map((place: any) => ({
+                ...place,
+                place_coordinate_x: place.place_coordinate_x, 
+                place_coordinate_y: place.place_coordinate_y, 
+              })),
               center_x: course.center_x, 
               center_y: course.center_y,
             }));

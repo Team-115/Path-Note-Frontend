@@ -36,6 +36,9 @@ const Map = ({
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
   const markerRef = useRef<any>(null);
+  const coursemarkerRef = useRef<any[]>([]);
+  const polylineRef = useRef<any>(null);
+
   const { Tmapv3 } = window as any;
 
   //          state: 장소 정보 컴포넌트 표시 상태 관리          //
@@ -53,7 +56,7 @@ const Map = ({
   // 장소 정보 컴포넌트에 표시할 POI정보는 selectedPOI 기반
   // 추후 지도 클릭으로 얻은 상세정보(d)도 보여주려면 컴포넌트 생성 후 별도 로컬 상태(infoPoi) 도입 또는 selectedPOI 전역 업데이트 필요
   const selectedPOI = useSearchStore(s => s.selectedPOI);
-  const { center, zoom } = useMapStore();
+  const { center, zoom, markers } = useMapStore();
   // 경로 순서 상태 관리용 단순 증가 ID
   const idRef = useRef(1);
   
@@ -137,6 +140,14 @@ const Map = ({
         markerRef.current.setMap(null);
         markerRef.current = null;
       }
+      if (coursemarkerRef.current.length > 0) {
+        coursemarkerRef.current.forEach(marker => marker.setMap(null));
+        coursemarkerRef.current = [];
+      }
+      if (polylineRef.current) {
+        polylineRef.current.setMap(null);
+        polylineRef.current = null;
+      }
       if (mapInstanceRef.current) {
         mapInstanceRef.current.destroy();
         mapInstanceRef.current = null;
@@ -189,6 +200,59 @@ const Map = ({
       lng: selectedPOI.lng,
     });
   }, [selectedPOI, Tmapv3]);
+
+   useEffect(() => {
+    if (!mapInstanceRef.current || !Tmapv3) return;
+
+    // 기존 마커를 모두 제거합니다.
+    if (coursemarkerRef.current.length > 0) {
+      coursemarkerRef.current.forEach(marker => marker.setMap(null));
+      coursemarkerRef.current = [];
+    }
+    
+    // 기존 선을 제거합니다.
+    if (polylineRef.current) {
+      polylineRef.current.setMap(null);
+      polylineRef.current = null;
+    }
+
+    // 새로운 마커와 선을 생성하여 지도에 추가합니다.
+    if (markers.length > 0) {
+      const polylinePoints: any[] = [];
+      const bounds = new Tmapv3.LatLngBounds();
+
+      markers.forEach((place: { place_coordinate_x: string; place_coordinate_y: string; }) => {
+        const lat = parseFloat(place.place_coordinate_x);
+        const lng = parseFloat(place.place_coordinate_y);
+        const position = new Tmapv3.LatLng(lat, lng);
+        
+        // 마커 생성
+        const marker = new Tmapv3.Marker({
+          position: position,
+          map: mapInstanceRef.current,
+        });
+        coursemarkerRef.current.push(marker);
+
+        // 선을 그릴 좌표와 지도의 경계를 확장합니다.
+        polylinePoints.push(position);
+        bounds.extend(position);
+      });
+
+      // 장소들을 연결하는 선을 그립니다.
+      if (polylinePoints.length > 1) {
+        polylineRef.current = new Tmapv3.Polyline({
+          path: polylinePoints,
+          strokeColor: "#ff0000",
+          strokeWeight: 4,
+          directionColor: "#333333", // 진행 방향 화살표 색상
+          map: mapInstanceRef.current
+        });
+      }
+
+      // 모든 마커가 화면에 보이도록 지도를 맞춥니다.
+      mapInstanceRef.current.fitBounds(bounds);
+    }
+  }, [markers, Tmapv3]);
 
   //          event handler: 최종 코스 작성 패널 열기 이벤트 핸들러          //
   const handleOpenCoursePanel = () => {
