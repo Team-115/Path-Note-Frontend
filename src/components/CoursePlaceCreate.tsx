@@ -17,24 +17,39 @@ export default function CoursePlaceCreate({  onCancel, places, onSubmit,}: Cours
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
 
-  // 예시 포맷터 (문서 예시: "YYYY-MM-DD HH:mm")
-  const fmt = (d: Date) => {
-    const pad = (n: number) => String(n).padStart(2, "0");
-    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  };
+  //          function: 날짜 시간 포맷터 (문서 예시: "YYYY-MM-DD HH:mm")          //
+  const pad = (n: number) => String(n).padStart(2, "0");
+  // 오늘 날짜를 "YYYY-MM-DD"로 반환 (로컬 타임존 기준)
+  const todayStr = (d = new Date()) =>
+    `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  // "HH:MM" 형태로 정규화 (예방적 패딩)
+  const normalizeHHmm = (t?: string | null) => {
+  if (!t) return "00:00";                  // 비입력 시 기본값
+  const [h, m] = t.split(":");
+  const hh = pad(Number(h ?? 0));
+  const mm = pad(Number(m ?? 0));
+  return `${hh}:${mm}`;
+};
   
   // CoursePlaceType -> CoursePlaceDto 매핑
-  const toCoursePlaceDto = (p: CoursePlaceType, idx: number): CoursePlaceDto => ({
+  const toCoursePlaceDto = (p: CoursePlaceType, idx: number): CoursePlaceDto => {
+  const baseDate = todayStr();              // 작성 시점의 오늘 날짜
+  const enter = normalizeHHmm((p as any).arrivalTime); // "HH:MM" 가정
+  const leave = normalizeHHmm((p as any).departureTime); // "HH:MM" 가정
+
+  return {
     poi_id: String(p.poiId),
     sequence_index: idx + 1,
     place_name: p.name ?? "",
     place_category: p.category ?? "",
     place_address: p.address ?? "",
-    place_coordinate_x: String((p as any).lng ?? (p as any).lon ?? (p as any).x ?? ""), // 문자열
-    place_coordinate_y: String((p as any).lat ?? (p as any).y ?? ""),                   // 문자열
-    place_enter_time: (p as any).enterTime ?? fmt(new Date()),                          // 문자열
-    place_leave_time: (p as any).leaveTime ?? fmt(new Date(Date.now() + 60*60*1000)),   // +1h 예시
-  });
+    place_coordinate_x: String((p as any).lng ?? (p as any).lon ?? (p as any).x ?? ""),
+    place_coordinate_y: String((p as any).lat ?? (p as any).y ?? ""),
+    place_enter_time: `${baseDate} ${enter}`,
+    place_leave_time: `${baseDate} ${leave}`,
+  };
+};
+
   //          event handler: 장소 등록 이벤트 핸들러          //
   // 폼 제출시 실행 입력된 값으로 payload 객체 생성 후 실행
   const handleSubmit = (e: React.FormEvent) => {

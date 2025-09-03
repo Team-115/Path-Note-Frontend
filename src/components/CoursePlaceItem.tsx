@@ -5,8 +5,8 @@ interface CoursePlaceItemProps {
   name: string;
   address: string;
   category?: string;
-  arrivalTime?: string;
-  departureTime?: string;
+  arrivalTime?: string | null;
+  departureTime?: string | null;
   onRemove: (id: number) => void;           // 선택한 장소를 삭제하는 콜백
   onTimeChange?: (id: number, t: { arrivalTime?: string; departureTime?: string }) => void; // 출발,도착 시간 변경시 실행되는 콜백
 }

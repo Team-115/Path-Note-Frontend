@@ -1,4 +1,3 @@
-// utils/buildCourseCreateRequest.ts
 import type { CourseCreateRequestDto, CoursePlaceDto } from "../types/CoursePlaceDto";
 import type { CoursePlaceType } from "../types/CoursePlaceType";
 
