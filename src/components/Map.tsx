@@ -374,6 +374,7 @@ const Map = ({
                   departureTime={p.departureTime}
                   onTimeChange={handlePlaceTimeChange}
                   onRemove={handleRemovePlace}
+                  isLast={idx === coursePlaces.length - 1}
                 />
               ))}
             </div>

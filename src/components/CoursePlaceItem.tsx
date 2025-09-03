@@ -9,12 +9,13 @@ interface CoursePlaceItemProps {
   departureTime?: string | null;
   onRemove: (id: number) => void;           // 선택한 장소를 삭제하는 콜백
   onTimeChange?: (id: number, t: { arrivalTime?: string; departureTime?: string }) => void; // 출발,도착 시간 변경시 실행되는 콜백
+  isLast?: boolean; // 마지막 장소인지 여부
 }
 
 
 
 //          component: 코스 장소 아이템 컴포넌트          //
-export default function CoursePlaceItem({ id, index, name, address, category, arrivalTime, departureTime, onRemove, onTimeChange, }: CoursePlaceItemProps) {
+export default function CoursePlaceItem({ id, index, name, address, category, arrivalTime, departureTime, onRemove, onTimeChange, isLast = false,}: CoursePlaceItemProps) {
   const cat = (category ?? '').trim();
 
     //          render: 코스 장소 아이템 컴포넌트 랜더링          //
@@ -96,15 +97,17 @@ export default function CoursePlaceItem({ id, index, name, address, category, ar
             className="w-32 rounded-full border border-gray-300 px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:bg-main-100"
           />
         </div>
-        <div className="flex items-center gap-2">
-          <span className="shrink-0 text-[12px] text-gray-600">출발</span>
-          <input
-            type="time"
-            value={departureTime ?? ''}
-            onChange={(e) => onTimeChange?.(id, { departureTime: e.target.value })}    
-            className="w-32 rounded-full border border-gray-300 px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:bg-main-100"
-          />
-        </div>
+        {!isLast && (
+          <div className="flex items-center gap-2">
+            <span className="shrink-0 text-[12px] text-gray-600">출발</span>
+            <input
+              type="time"
+              value={departureTime ?? ''}
+              onChange={(e) => onTimeChange?.(id, { departureTime: e.target.value })}
+              className="w-32 rounded-full border border-gray-300 px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:bg-main-100"
+            />
+          </div>
+        )}
       </div>
       </div>
     </div>

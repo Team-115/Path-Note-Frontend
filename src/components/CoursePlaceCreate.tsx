@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import type { CoursePlaceType } from "../types/CoursePlaceType";
 import type { CourseCreateRequestDto, CoursePlaceDto } from "../types/CoursePlaceDto";
 
@@ -22,33 +22,62 @@ export default function CoursePlaceCreate({  onCancel, places, onSubmit,}: Cours
   // 오늘 날짜를 "YYYY-MM-DD"로 반환 (로컬 타임존 기준)
   const todayStr = (d = new Date()) =>
     `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-  // "HH:MM" 형태로 정규화 (예방적 패딩)
-  const normalizeHHmm = (t?: string | null) => {
+  // "HH:MM" 형태로 정규화
+  const fommaterHHmm = (t?: string | null) => {
   if (!t) return "00:00";                  // 비입력 시 기본값
   const [h, m] = t.split(":");
   const hh = pad(Number(h ?? 0));
   const mm = pad(Number(m ?? 0));
   return `${hh}:${mm}`;
-};
-  
+  };
   // CoursePlaceType -> CoursePlaceDto 매핑
   const toCoursePlaceDto = (p: CoursePlaceType, idx: number): CoursePlaceDto => {
-  const baseDate = todayStr();              // 작성 시점의 오늘 날짜
-  const enter = normalizeHHmm((p as any).arrivalTime); // "HH:MM" 가정
-  const leave = normalizeHHmm((p as any).departureTime); // "HH:MM" 가정
+    const baseDate = todayStr();              // 작성 시점의 오늘 날짜
+    const enter = fommaterHHmm((p as any).arrivalTime); // "HH:MM"
+    const leave = fommaterHHmm((p as any).departureTime); // "HH:MM"
 
-  return {
-    poi_id: String(p.poiId),
-    sequence_index: idx + 1,
-    place_name: p.name ?? "",
-    place_category: p.category ?? "",
-    place_address: p.address ?? "",
-    place_coordinate_x: String((p as any).lng ?? (p as any).lon ?? (p as any).x ?? ""),
-    place_coordinate_y: String((p as any).lat ?? (p as any).y ?? ""),
-    place_enter_time: `${baseDate} ${enter}`,
-    place_leave_time: `${baseDate} ${leave}`,
+    return {
+      poi_id: String(p.poiId),
+      sequence_index: idx + 1,
+      place_name: p.name ?? "",
+      place_category: p.category ?? "",
+      place_address: p.address ?? "",
+      place_coordinate_x: String((p as any).lng ?? (p as any).lon ?? (p as any).x ?? ""),
+      place_coordinate_y: String((p as any).lat ?? (p as any).y ?? ""),
+      place_enter_time: `${baseDate} ${enter}`,
+      place_leave_time: `${baseDate} ${leave}`,
+    };
   };
-};
+
+  //          function: 소요 시간 계산 함수          //
+    // "HH:MM" → 분
+  const toMinutes = (hhmm?: string | null) => {
+    if (!hhmm || !/^\d{2}:\d{2}$/.test(hhmm)) return null;
+    const [h, m] = hhmm.split(":").map(Number);
+    return h * 60 + m;
+  };
+
+  // 125 → "2시간 5분" / 60 → "1시간" / 45 → "45분"
+  const formatDuration = (mins: number) => {
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    if (h > 0 && m > 0) return `${h}시간 ${m}분`;
+    if (h > 0) return `${h}시간`;
+    return `${m}분`;
+  };
+
+  // 첫 도착 ↔ 마지막 도착 차이
+  const courseDurationLabel = useMemo(() => {
+    if (places.length === 0) return "—";
+    const firstArr = toMinutes((places[0] as any).arrivalTime);
+    const lastArr  = toMinutes((places[places.length - 1] as any).arrivalTime);
+    if (firstArr == null || lastArr == null) return "—";
+
+    let diff = lastArr - firstArr;
+    if (diff < 0) diff += 24 * 60; // 자정 넘김 처리(예: 23:30 → 01:00)
+
+    return formatDuration(diff);
+  }, [places]);
 
   //          event handler: 장소 등록 이벤트 핸들러          //
   // 폼 제출시 실행 입력된 값으로 payload 객체 생성 후 실행
@@ -125,11 +154,9 @@ export default function CoursePlaceCreate({  onCancel, places, onSubmit,}: Cours
       </ul>
 
       {/* 일정 요약 */}
-      <div className="grid grid-cols-[auto_1fr]  gap-x-4 gap-y-2 items-start mb-4">
-        <label className="text-[13px] font-bold leading-8">코스 소요 시간</label>
-        <div className="flex items-center gap-8 text-[13px]">
-          <div className="text-gray-500">3시간</div>
-        </div>
+      <div className="grid grid-cols-[auto_1fr]  gap-x-4 items-center mb-4">
+        <label className="text-[13px] font-bold">코스 소요 시간</label>
+          <div className="text-[13px] text-gray-500">{courseDurationLabel}</div>
       </div>
 
       {/* 코스 이름 */}
