@@ -1,6 +1,7 @@
-import { FaRegPaperPlane, FaHashtag } from "react-icons/fa";
+import { FaRegPaperPlane, FaHashtag, FaRegHeart, FaHeart, FaCommentDots, FaChevronDown, FaChevronUp, FaUserCircle, } from "react-icons/fa";
 import { FcClock } from "react-icons/fc";
 import type { CourseData } from "../types/course";
+import { useState } from "react";
 
 type Props = {  // 부모 -> 자식 데이터 넘겨주기 위해.
   course: CourseData | null;  // null 사용 이유 : 선택된 코스가 없음을 알려주기 위해.
@@ -8,6 +9,24 @@ type Props = {  // 부모 -> 자식 데이터 넘겨주기 위해.
 
 // 중앙 컴포넌트 (코스 상세 정보)
 export default function CourseDetail({ course }: Props) {
+  //          state: 좋아요 상태          //
+  const [liked, setLiked] = useState(false);
+  //          state: 좋아요 수 상태          //
+  const [likeCount, setLikeCount] = useState(0);
+  //          state: 댓글 보여주기 상태          //
+  const [showComments, setShowComments] = useState(true);
+
+  // 데모용 데이터(표시 전용)
+  const demoComments = [
+    { id: "c1", author: "핑크공듀", date: "2025-09-04", text: "대전에 가면 꼭 가봐야할 코스만 모여있네." },
+    { id: "c2", author: "장나영", date: "2025-09-05", text: "저도 가봤어요." },
+  ];
+
+  const onToggleLike = () => {
+    setLiked((prev) => !prev);
+    setLikeCount((n) => (liked ? n - 1 : n + 1));
+  };
+  
   if (!course) {  // 선택된 코스가 없을 경우
     return (
       <p className="text-center text-gray-400 text-sm">코스를 선택해주세요.</p>
@@ -41,6 +60,73 @@ export default function CourseDetail({ course }: Props) {
           <FaHashtag className="text-2xl text-blue-400" />
           <span>{course.tags}</span>
         </div>
+      </div>
+
+      {/* ===== 좋아요/댓글 바 ===== */}
+      <div className="mt-4 px-1 py-2 rounded-xl bg-white/70 ring-1 ring-black/5">
+        <div className="flex items-center">
+          {/* 좋아요 */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onToggleLike}
+              className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 hover:bg-gray-100 active:scale-[0.98] transition"
+            >
+              {liked ? (
+                <FaHeart className="text-rose-500 text-lg" />
+              ) : (
+                <FaRegHeart className="text-gray-700 text-lg" />
+              )}
+              <span className="text-sm tabular-nums">좋아요 {likeCount}</span>
+            </button>
+          </div>
+
+          {/* 댓글 */}
+          <div className="flex items-center">
+            <div className="inline-flex items-center gap-2 rounded-full px-3">
+              <FaCommentDots className="text-gray-700 text-lg" />
+              <span className="text-sm tabular-nums">
+                리뷰 {demoComments.length}
+              </span>
+            </div>
+
+            <button
+              onClick={() => setShowComments((v) => !v)}
+              className="inline-flex items-center gap-1 text-xs text-gray-600 hover:text-gray-800"
+            >
+              {showComments ? <FaChevronUp /> : <FaChevronDown />}
+            </button>
+          </div>
+        </div>
+
+        {/* 댓글 리스트(접힘) */}
+        {showComments && (
+          <div className="mt-4">
+
+            <div className="space-y-3">
+              {demoComments.map((c) => (
+                <div
+                  key={c.id}
+                  className="rounded-xl bg-gray-50 px-3 py-2 ring-1 ring-black/5"
+                >
+                  <div className="flex items-center gap-2 text-[12px] text-gray-600">
+                    <FaUserCircle />
+                    <span className="font-semibold text-gray-800">{c.author}</span>
+                    <span className="text-gray-400">{c.date}</span>
+                  </div>
+                  <p className="mt-1 text-[13px] leading-5 text-gray-800 whitespace-pre-wrap">
+                    {c.text}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* 입력창은 서버 연동 전까지 비노출/주석 처리 가능 */}
+            <div className="mt-3 flex items-center gap-2">
+              <input className="flex-1 rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-main-200" placeholder="리뷰를 입력해주세요." />
+              <button className="rounded-xl bg-main-200 text-white text-sm px-4 py-2 hover:bg-main-300">등록</button>
+            </div> 
+          </div>
+        )}
       </div>
 
       <div
