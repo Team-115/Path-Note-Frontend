@@ -14,7 +14,7 @@ export default function CourseDetail({ course }: Props) {
   //          state: 좋아요 수 상태          //
   const [likeCount, setLikeCount] = useState(0);
   //          state: 댓글 보여주기 상태          //
-  const [showComments, setShowComments] = useState(true);
+  const [showComments, setShowComments] = useState(false);
 
   // 데모용 데이터(표시 전용)
   const demoComments = [
@@ -120,7 +120,7 @@ export default function CourseDetail({ course }: Props) {
               ))}
             </div>
 
-            {/* 입력창은 서버 연동 전까지 비노출/주석 처리 가능 */}
+            {/* 댓글 입력창 */}
             <div className="mt-3 flex items-center gap-2">
               <input className="flex-1 rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-main-200" placeholder="리뷰를 입력해주세요." />
               <button className="rounded-xl bg-main-200 text-white text-sm px-4 py-2 hover:bg-main-300">등록</button>
