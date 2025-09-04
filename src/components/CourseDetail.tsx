@@ -1,4 +1,4 @@
-import { FaRegPaperPlane, FaHashtag, FaRegHeart, FaHeart, FaCommentDots, FaChevronDown, FaChevronUp, FaUserCircle, } from "react-icons/fa";
+import { FaRegPaperPlane, FaHashtag, FaRegHeart, FaHeart, FaCommentDots, FaChevronDown, FaChevronUp,} from "react-icons/fa";
 import { FcClock } from "react-icons/fc";
 import type { CourseData } from "../types/course";
 import { useState } from "react";
@@ -64,7 +64,7 @@ export default function CourseDetail({ course }: Props) {
       </div>
 
       {/* ===== 좋아요/댓글 바 ===== */}
-      <div className="mt-4 px-1 py-2 rounded-xl bg-white/70 ring-1 ring-black/5">
+      <div className="mt-4 px-1 py-2">
         <div className="flex items-center">
           {/* 좋아요 */}
           <div className="flex items-center gap-2">
