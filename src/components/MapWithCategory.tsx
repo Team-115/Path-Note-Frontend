@@ -89,6 +89,8 @@ export default function MapWithCategory() {
           });
         }
       })();
+    } else {
+      setCourselist([]);
     }
   }, [moveToLocation, setZoom, selectedCategory]);
 
