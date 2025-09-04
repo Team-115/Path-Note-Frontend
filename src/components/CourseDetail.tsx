@@ -2,6 +2,7 @@ import { FaRegPaperPlane, FaHashtag, FaRegHeart, FaHeart, FaCommentDots, FaChevr
 import { FcClock } from "react-icons/fc";
 import type { CourseData } from "../types/course";
 import { useState } from "react";
+import CommentItem from "./CommentItem";
 
 type Props = {  // 부모 -> 자식 데이터 넘겨주기 위해.
   course: CourseData | null;  // null 사용 이유 : 선택된 코스가 없음을 알려주기 위해.
@@ -101,24 +102,7 @@ export default function CourseDetail({ course }: Props) {
         {/* 댓글 리스트(접힘) */}
         {showComments && (
           <div className="mt-4">
-
-            <div className="space-y-3">
-              {demoComments.map((c) => (
-                <div
-                  key={c.id}
-                  className="rounded-xl bg-gray-50 px-3 py-2 ring-1 ring-black/5"
-                >
-                  <div className="flex items-center gap-2 text-[12px] text-gray-600">
-                    <FaUserCircle />
-                    <span className="font-semibold text-gray-800">{c.author}</span>
-                    <span className="text-gray-400">{c.date}</span>
-                  </div>
-                  <p className="mt-1 text-[13px] leading-5 text-gray-800 whitespace-pre-wrap">
-                    {c.text}
-                  </p>
-                </div>
-              ))}
-            </div>
+            <CommentItem/>
 
             {/* 댓글 입력창 */}
             <div className="mt-3 flex items-center gap-2">
