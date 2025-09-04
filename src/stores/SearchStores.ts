@@ -13,11 +13,22 @@ export interface POIResult {
   frontLon?: string;
 }
 
+export interface CourseResult {
+  id: string;
+  name: string;
+  address: string;
+  lat: number;
+  lng: number;
+  frontLat?: string;
+  frontLon?: string;
+}
+
 // 검색 상태 관리에 사용할 상태 정의
 // Zustand 스토어에서 관리할 데이터와 이를 조작하는 함수들을 포함한다.
 interface SearchState {
   keyword: string;
   searchResults: POIResult[];
+  courseResults: CourseResult[];
   isSearching: boolean;
   selectedPOI: POIResult | null;
   isResultsVisible: boolean;
@@ -25,6 +36,7 @@ interface SearchState {
   // 상태를 업데이트하기 위한  함수들
   setKeyword: (keyword: string) => void;
   setSearchResults: (results: POIResult[]) => void;
+  setCourseResults: (results: CourseResult[]) => void; 
   setIsSearching: (isSearching: boolean) => void;
   setSelectedPOI: (poi: POIResult | null) => void;
   setIsResultsVisible: (visible: boolean) => void;
@@ -36,6 +48,7 @@ interface SearchState {
 export const useSearchStore = create<SearchState>((set) => ({
   keyword: '',
   searchResults: [],
+  courseResults: [],
   isSearching: false,
   selectedPOI: null,
   isResultsVisible: false,
@@ -43,6 +56,7 @@ export const useSearchStore = create<SearchState>((set) => ({
   // 상태 업데이트하기 위한 함수들
   setKeyword: (keyword) => set({ keyword }),
   setSearchResults: (searchResults) => set({ searchResults }),
+  setCourseResults: (courseResults) => set({ courseResults }),
   setIsSearching: (isSearching) => set({ isSearching }),
   setSelectedPOI: (selectedPOI) => set({ selectedPOI }),
   setIsResultsVisible: (isResultsVisible) => set({ isResultsVisible }),
@@ -51,6 +65,7 @@ export const useSearchStore = create<SearchState>((set) => ({
   clearSearch: () => set({ 
     keyword: '', 
     searchResults: [], 
+    courseResults: [],
     isSearching: false, 
     selectedPOI: null,
     isResultsVisible: false 

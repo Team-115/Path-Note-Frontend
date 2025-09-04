@@ -1,17 +1,19 @@
 import { useState, useEffect } from "react";
-// useState : 컴포넌트 안에서 상태(데이터)를 저장하고 관리 (selectedcourse, courseList, places). 즉, 사용자의 동작에 따라 동적으로 변해야 하는 데이터를 관리하기 위해
-// useEffect : 컴포넌트가 렌더링된 후에 수행할 작업(api호출_)
 import CourseList from "../../components/CourseList";
 import type { CourseData } from "../../types/course";
 import type { PlacesData } from "../../types/places";
 import CoursePlaces from "../../components/CoursePlaces";
 import CourseDetail from "../../components/CourseDetail";
 import axios from "axios";
+import { useSearchStore } from "../../stores/SearchStores";
 
 export default function CourseBoard() {
-  const [selectedCourse, setSelectedCourse] = useState<CourseData | null>(null);  // 선택된 코스 정보 저장
-  const [courseList, setCourselist] = useState<CourseData[]>([]);                 // 코스 리스트 저장
-  const [places, setPlaces] = useState<PlacesData[]>([]);                         // 선택된 코스에 포함된 장소 데이터 저장
+  const [selectedCourse, setSelectedCourse] = useState<CourseData | null>(null);
+  const [courseList, setCourselist] = useState<CourseData[]>([]);
+  const [places, setPlaces] = useState<PlacesData[]>([]);
+
+  // 검색 상태 가져오기
+  const { searchResults, isResultsVisible, clearSearch } = useSearchStore();
 
   // 코스 리스트 조회
   useEffect(() => { // 컴포넌트가 처음 렌더링 될 때 코스 리스트를 불러오기 위함
@@ -26,6 +28,7 @@ export default function CourseBoard() {
           tags: "#대학생 #대전 #일상 #IoT",
           imgSrc: "src/images/school.png",
           description: course.course_description
+        
         }));
         setCourselist(convertedCourses);  // 변환된 코스 리스트를 상태에 저장
       } catch (error) {
@@ -36,8 +39,7 @@ export default function CourseBoard() {
 
   // 코스 단건 조회
   const handleSelectCourse = async (course: CourseData) => {
-    setSelectedCourse(course); 
-
+    setSelectedCourse(course);
     try {
       const response = await axios.get(`/api/courses/${course.course_id}`); // 백엔드 api로부터 코스의 상세 데이터 가져옴.
       setPlaces(response.data.course_places || []);
@@ -47,15 +49,12 @@ export default function CourseBoard() {
     }
   };
 
-  // const courseList: CourseData[] = [
-  //   {
-  //     title: "대전대 IoT의 일상",
-  //     time: "07:30 ~ 08:00",
-  //     duration: "30분",
-  //     tags: "#대학생 #대전 #일상 #IoT",
-  //     imgSrc: "src/images/school.png",
-  //   },
-  // ];
+  // 코스보드 페이지를 벗어날 때 검색 결과 초기화
+  useEffect(() => {
+    return () => {
+      clearSearch();
+    };
+  }, []);
 
   return (
     <div className="p-15 bg-base-100 min-h-screen flex justify-center">
@@ -69,10 +68,39 @@ export default function CourseBoard() {
         </div>
 
         <div className="bg-white rounded-xl bg-opacity-50 shadow-md p-6 col-span-1">
-          <h2 className="text-xl font-bold mb-4">코스 리스트</h2>
-          {courseList.map((course, idx) => (
-             <CourseList key={idx} course={course} onSelect={handleSelectCourse} />
-          ))}
+          {/* 검색 결과가 있을 때만 검색 결과를 보여줌 */}
+          {isResultsVisible && searchResults.length > 0 ? (
+            <div className="h-full overflow-y-auto">
+              <h2 className="text-xl font-bold mb-4">검색 결과</h2>
+              {searchResults.map((result, idx) => (
+                <CourseList
+                  key={idx}
+                  course={{
+                    course_id: Number(result.id),
+                    course_name: result.name,
+                    description: result.address,
+                    time: "시간 정보",
+                    duration: "소요 시간",
+                    tags: "태그 정보",
+                    imgSrc: "src/images/default.png",
+                    center_y: 0,
+                    center_x: 0,
+                    course_places: [],
+                    category: ""
+                  }}
+                  onSelect={handleSelectCourse}
+                />
+              ))}
+            </div>
+          ) : (
+            // 검색 결과가 없거나 검색하지 않았을 때 기존 코스 리스트를 보여줌
+            <>
+              <h2 className="text-xl font-bold mb-4">코스 리스트</h2>
+              {courseList.map((course, idx) => (
+                <CourseList key={idx} course={course} onSelect={handleSelectCourse} />
+              ))}
+            </>
+          )}
         </div>
       </div>
     </div>
