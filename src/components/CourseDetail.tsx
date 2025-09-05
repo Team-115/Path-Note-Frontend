@@ -4,7 +4,8 @@ import type { CourseData } from "../types/course";
 import { useEffect, useState } from "react";
 import CommentItem from "./CommentItem";
 import { getFavoriteCountRequest, postFavoriteRequest, getIsLikedRequest } from "../apis/FavoriteApi";
-import { postCommentRequest } from "../apis/CommentApi";
+import { getCommentsRequest, postCommentRequest} from "../apis/CommentApi";
+import type { CommentResponse } from "../apis/CommentApi";
 
 type Props = {  // 부모 -> 자식 데이터 넘겨주기 위해.
   course: CourseData | null;  // null 사용 이유 : 선택된 코스가 없음을 알려주기 위해.
@@ -19,7 +20,7 @@ export default function CourseDetail({ course }: Props) {
   //          state: 좋아요 클릭 중복 방지 상태          //
   const [loading, setLoading] = useState(false);
   //          state: 댓글 상태          //
-  const [comments, setComments] = useState<{ commentId: number; authorName: string; content: string; createdAt: string }[]>([]);
+  const [comments, setComments] = useState<CommentResponse[]>([]);
   //          state: 댓글 창 상태          //
   const [showComments, setShowComments] = useState(false);
   //          state: 댓글 입력 상태          //
@@ -35,19 +36,9 @@ export default function CourseDetail({ course }: Props) {
 
   setSubmitting(true);
   try {
-    // 서버 등록 (명세: POST /api/courses/{courseId}/comments, body: { content })
-    const res = await postCommentRequest(course.course_id, content);
-
-    // 서버가 content만 돌려준다는 명세 기준으로 즉시 반영 (임시 메타는 클라에서 생성)
-    setComments(prev => [
-      {
-        commentId: Date.now(),
-        authorName: "나", // 서버가 작성자 내려주면 교체
-        content: res.content,
-        createdAt: new Date().toISOString(),
-      },
-      ...prev,
-    ]);
+    await postCommentRequest(course.course_id, content);
+    const list = await getCommentsRequest(course.course_id); // 등록 후 재조회
+    setComments(list);
     setCommentText("");
   } catch (e) {
     console.error("댓글 등록 실패:", e);
@@ -63,7 +54,6 @@ const onCommentKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     onSubmitComment();
   }
 };
-
 
   //          effect: 좋아요 수, 과거 좋아요 여부 동시 조회          //
   useEffect(() => {
@@ -87,12 +77,22 @@ const onCommentKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     load();
   }, [course?.course_id]);
 
+  //          effect: 코스가 바뀌면 댓글 목록 초기화          //
+  useEffect(() => {
+    if (!course?.course_id) {
+      setComments([]);
+      return;
+    }
+    (async () => {
+      try {
+        const list = await getCommentsRequest(course.course_id);
+        setComments(list);
+      } catch (e) {
+        console.error("댓글 초기 조회 실패:", e);
+      }
+    })();
+  }, [course?.course_id]);
 
-  // 데모용 데이터(표시 전용)
-  const demoComments = [
-    { id: "c1", author: "핑크공듀", date: "2025-09-04", text: "대전에 가면 꼭 가봐야할 코스만 모여있네." },
-    { id: "c2", author: "장나영", date: "2025-09-05", text: "저도 가봤어요." },
-  ];
 
   //          function: 좋아요 토글 함수          //
   const onToggleLike = async () => {
@@ -190,8 +190,15 @@ const onCommentKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         {/* 댓글 리스트(접힘) */}
         {showComments && (
           <div className="mt-4">
-            <CommentItem/>
-
+            {comments.map((c) => (
+              <CommentItem
+                key={c.comment_id}
+                author={c.user.nickname}
+                text={c.content}
+                date={c.created_at}
+                profileURL={c.user.profilePresetURL}
+              />
+            ))}
             {/* 댓글 입력창 */}
             <div className="mt-3 flex items-center gap-2">
               <input

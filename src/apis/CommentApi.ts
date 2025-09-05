@@ -7,3 +7,22 @@ export const postCommentRequest = async (courseId: number, content: string): Pro
   );
   return data;
 };
+
+export type CommentResponse = {
+  course_id: number;
+  comment_id: number;
+  content: string;
+  created_at: string;
+  user: {
+    nickname: string;
+    profilePresetURL: string;
+  };
+};
+
+// 댓글 전체 조회 GET /api/courses/{courseId}/comments
+export const getCommentsRequest = async (
+  courseId: number
+): Promise<CommentResponse[]> => {
+  const { data } = await api.get<CommentResponse[]>(`/api/courses/${courseId}/comments`);
+  return data;
+};
