@@ -13,7 +13,7 @@ export default function CourseBoard() {
   const [places, setPlaces] = useState<PlacesData[]>([]);
 
   // 검색 상태 가져오기
-  const { searchResults, isResultsVisible, clearSearch } = useSearchStore();
+  const { courseResults, isResultsVisible, clearSearch } = useSearchStore();
 
   // 코스 리스트 조회
   useEffect(() => { // 컴포넌트가 처음 렌더링 될 때 코스 리스트를 불러오기 위함
@@ -69,31 +69,14 @@ export default function CourseBoard() {
 
         <div className="bg-white rounded-xl bg-opacity-50 shadow-md p-6 col-span-1">
           {/* 검색 결과가 있을 때만 검색 결과를 보여줌 */}
-          {isResultsVisible && searchResults.length > 0 ? (
+          {isResultsVisible && courseResults.length > 0 ? (
             <div className="h-full overflow-y-auto">
               <h2 className="text-xl font-bold mb-4">검색 결과</h2>
-              {searchResults.map((result, idx) => (
-                <CourseList
-                  key={idx}
-                  course={{
-                    course_id: Number(result.id),
-                    course_name: result.name,
-                    description: result.address,
-                    time: "시간 정보",
-                    duration: "소요 시간",
-                    tags: "태그 정보",
-                    imgSrc: "src/images/default.png",
-                    center_y: 0,
-                    center_x: 0,
-                    course_places: [],
-                    category: ""
-                  }}
-                  onSelect={handleSelectCourse}
-                />
+              {courseResults.map((course, idx) => (
+                <CourseList key={idx} course={course} onSelect={handleSelectCourse} />
               ))}
             </div>
           ) : (
-            // 검색 결과가 없거나 검색하지 않았을 때 기존 코스 리스트를 보여줌
             <>
               <h2 className="text-xl font-bold mb-4">코스 리스트</h2>
               {courseList.map((course, idx) => (
