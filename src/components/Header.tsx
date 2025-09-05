@@ -7,6 +7,7 @@ import { KAKAO_LOG_IN_URL, getSignInUserRequest } from '../apis/GetUserInfoApi';
 import useLoginUserStore from '../stores/LoginUserStores';
 import { useNavigate, useLocation } from 'react-router';
 import axios from 'axios';
+import type { CourseData } from '../types/course';
 
 //          component: 헤더 컴포넌트          //
 const Header = () => {
@@ -99,12 +100,14 @@ const Header = () => {
     try {
       if (isCourseBoardPage) {
         const response = await axios.post(`/api/search/courses`, { keyword: kw });
-        const convertedResults = response.data.map((course: any) => ({
-          id: course.course_id,
-          name: course.course_name,
-          address: course.course_description,
-          lat: 0,
-          lng: 0,
+        const convertedResults: CourseData[] = response.data.map((course: any) => ({
+          course_id: course.course_id,
+          course_name: course.course_name,
+          time: "07:30 ~ 08:00",
+          duration: "30분",
+          tags: "#대학생 #대전 #일상 #IoT",
+          imgSrc: "src/images/school.png",
+          description: course.course_description,
         }));
         setCourseResults(convertedResults);
         setSearchResults([]);

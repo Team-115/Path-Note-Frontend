@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import type { CourseData } from '../types/course';
 
 
 // POI 검색 결과 타입 정의
@@ -13,22 +14,12 @@ export interface POIResult {
   frontLon?: string;
 }
 
-export interface CourseResult {
-  id: string;
-  name: string;
-  address: string;
-  lat: number;
-  lng: number;
-  frontLat?: string;
-  frontLon?: string;
-}
-
 // 검색 상태 관리에 사용할 상태 정의
 // Zustand 스토어에서 관리할 데이터와 이를 조작하는 함수들을 포함한다.
 interface SearchState {
   keyword: string;
   searchResults: POIResult[];
-  courseResults: CourseResult[];
+  courseResults: CourseData[];
   isSearching: boolean;
   selectedPOI: POIResult | null;
   isResultsVisible: boolean;
@@ -36,7 +27,7 @@ interface SearchState {
   // 상태를 업데이트하기 위한  함수들
   setKeyword: (keyword: string) => void;
   setSearchResults: (results: POIResult[]) => void;
-  setCourseResults: (results: CourseResult[]) => void; 
+  setCourseResults: (results: CourseData[]) => void; 
   setIsSearching: (isSearching: boolean) => void;
   setSelectedPOI: (poi: POIResult | null) => void;
   setIsResultsVisible: (visible: boolean) => void;
