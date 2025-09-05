@@ -4,6 +4,7 @@ import type { CourseData } from "../types/course";
 import { useEffect, useState } from "react";
 import CommentItem from "./CommentItem";
 import { getFavoriteCountRequest, postFavoriteRequest, getIsLikedRequest } from "../apis/FavoriteApi";
+import { postCommentRequest } from "../apis/CommentApi";
 
 type Props = {  // 부모 -> 자식 데이터 넘겨주기 위해.
   course: CourseData | null;  // null 사용 이유 : 선택된 코스가 없음을 알려주기 위해.
@@ -15,9 +16,54 @@ export default function CourseDetail({ course }: Props) {
   const [liked, setLiked] = useState(false);
   //          state: 좋아요 수 상태          //
   const [likeCount, setLikeCount] = useState(0);
-  //          state: 댓글 보여주기 상태          //
+  //          state: 좋아요 클릭 중복 방지 상태          //
+  const [loading, setLoading] = useState(false);
+  //          state: 댓글 상태          //
+  const [comments, setComments] = useState<{ commentId: number; authorName: string; content: string; createdAt: string }[]>([]);
+  //          state: 댓글 창 상태          //
   const [showComments, setShowComments] = useState(false);
-  const [loading, setLoading] = useState(false); // 중복 클릭 방지
+  //          state: 댓글 입력 상태          //
+  const [commentText, setCommentText] = useState("");
+  //          state: 댓글 등록 중복 방지 상태          //
+  const [submitting, setSubmitting] = useState(false);
+  
+  //          event handler: 댓글 작성 이벤트 핸들러          //
+  const onSubmitComment = async () => {
+  if (!course?.course_id || submitting) return;
+  const content = commentText.trim();
+  if (content.length === 0) return;
+
+  setSubmitting(true);
+  try {
+    // 서버 등록 (명세: POST /api/courses/{courseId}/comments, body: { content })
+    const res = await postCommentRequest(course.course_id, content);
+
+    // 서버가 content만 돌려준다는 명세 기준으로 즉시 반영 (임시 메타는 클라에서 생성)
+    setComments(prev => [
+      {
+        commentId: Date.now(),
+        authorName: "나", // 서버가 작성자 내려주면 교체
+        content: res.content,
+        createdAt: new Date().toISOString(),
+      },
+      ...prev,
+    ]);
+    setCommentText("");
+  } catch (e) {
+    console.error("댓글 등록 실패:", e);
+  } finally {
+    setSubmitting(false);
+  }
+};
+
+//          event handler: 댓글 작성 엔터키 이벤트 핸들러          //
+const onCommentKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    onSubmitComment();
+  }
+};
+
 
   //          effect: 좋아요 수, 과거 좋아요 여부 동시 조회          //
   useEffect(() => {
@@ -48,6 +94,7 @@ export default function CourseDetail({ course }: Props) {
     { id: "c2", author: "장나영", date: "2025-09-05", text: "저도 가봤어요." },
   ];
 
+  //          function: 좋아요 토글 함수          //
   const onToggleLike = async () => {
     if (!course?.course_id || loading) return;
     setLoading(true);
@@ -58,7 +105,8 @@ export default function CourseDetail({ course }: Props) {
         getFavoriteCountRequest(course.course_id),
         getIsLikedRequest(course.course_id),
       ]);
-      setLikeCount(Number.isFinite(count) ? count : 0);
+      console.log("좋아요 수:", count, "좋아요 여부:", isLiked);
+      setLikeCount(count);
       setLiked(!!isLiked);
     } catch (e) {
       console.error("좋아요 토글/재조회 실패:", e);
@@ -126,7 +174,7 @@ export default function CourseDetail({ course }: Props) {
             <div className="inline-flex items-center gap-2 rounded-full px-3">
               <FaCommentDots className="text-gray-700 text-lg" />
               <span className="text-sm tabular-nums">
-                리뷰 {demoComments.length}
+                리뷰 {comments.length}
               </span>
             </div>
 
@@ -146,9 +194,22 @@ export default function CourseDetail({ course }: Props) {
 
             {/* 댓글 입력창 */}
             <div className="mt-3 flex items-center gap-2">
-              <input className="flex-1 rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-main-200" placeholder="리뷰를 입력해주세요." />
-              <button className="rounded-xl bg-main-200 text-white text-sm px-4 py-2 hover:bg-main-300">등록</button>
-            </div> 
+              <input
+                className="flex-1 rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-main-200"
+                placeholder="리뷰를 입력해주세요."
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                onKeyDown={onCommentKeyDown}
+                disabled={submitting}
+              />
+              <button
+                className="rounded-xl bg-main-200 text-white text-sm px-4 py-2 hover:bg-main-300 disabled:opacity-50"
+                onClick={onSubmitComment}
+                disabled={submitting || commentText.trim().length === 0}
+              >
+                등록
+              </button>
+            </div>
           </div>
         )}
       </div>
