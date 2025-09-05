@@ -239,7 +239,7 @@ const Header = () => {
           </div>
         </div>
       </header>
-      {/* SearchResults 컴포넌트가 더 이상 여기서 렌더링되지 않음 */}
+      <SearchResults/>
     </>
   );
 };
