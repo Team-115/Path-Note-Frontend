@@ -3,7 +3,7 @@ import { FcClock } from "react-icons/fc";
 import type { CourseData } from "../types/course";
 import { useEffect, useState } from "react";
 import CommentItem from "./CommentItem";
-import { getFavoriteCountRequest } from "../apis/FavoriteApi";
+import { getFavoriteCountRequest, postFavoriteRequest, getIsLikedRequest } from "../apis/FavoriteApi";
 
 type Props = {  // 부모 -> 자식 데이터 넘겨주기 위해.
   course: CourseData | null;  // null 사용 이유 : 선택된 코스가 없음을 알려주기 위해.
@@ -17,22 +17,29 @@ export default function CourseDetail({ course }: Props) {
   const [likeCount, setLikeCount] = useState(0);
   //          state: 댓글 보여주기 상태          //
   const [showComments, setShowComments] = useState(false);
+  const [loading, setLoading] = useState(false); // 중복 클릭 방지
 
-  //          effect: 좋아요 수 조회          //
+  //          effect: 좋아요 수, 과거 좋아요 여부 동시 조회          //
   useEffect(() => {
-    if (!course) return;
-
-    const fetchLikeCount = async () => {
-    try {
-      const count = await getFavoriteCountRequest(course.course_id);
-      setLikeCount(count);
-    } catch (err) {
-      console.error("좋아요 갯수 불러오기 실패:", err);
+    if (!course) {
+      setLiked(false);
+      setLikeCount(0);
+      return;
     }
-  };
-
-  fetchLikeCount();
-  }, [course]);
+    const load = async () => {
+      try {
+        const [count, isLiked] = await Promise.all([
+          getFavoriteCountRequest(course.course_id),
+          getIsLikedRequest(course.course_id),
+        ]);
+        setLikeCount(count);
+        setLiked(isLiked);
+      } catch (e) {
+        console.error("좋아요 초기값 조회 실패:", e);
+      }
+    };
+    load();
+  }, [course?.course_id]);
 
 
   // 데모용 데이터(표시 전용)
@@ -41,9 +48,23 @@ export default function CourseDetail({ course }: Props) {
     { id: "c2", author: "장나영", date: "2025-09-05", text: "저도 가봤어요." },
   ];
 
-  const onToggleLike = () => {
-    setLiked((prev) => !prev);
-    setLikeCount((n) => (liked ? n - 1 : n + 1));
+  const onToggleLike = async () => {
+    if (!course?.course_id || loading) return;
+    setLoading(true);
+    try {
+      await postFavoriteRequest(course.course_id); // 서버에 토글
+      // 토글 성공 후 “항상” 최신값 재조회
+      const [count, isLiked] = await Promise.all([
+        getFavoriteCountRequest(course.course_id),
+        getIsLikedRequest(course.course_id),
+      ]);
+      setLikeCount(Number.isFinite(count) ? count : 0);
+      setLiked(!!isLiked);
+    } catch (e) {
+      console.error("좋아요 토글/재조회 실패:", e);
+    } finally {
+      setLoading(false);
+    }
   };
   
   if (!course) {  // 선택된 코스가 없을 경우
@@ -88,6 +109,7 @@ export default function CourseDetail({ course }: Props) {
           <div className="flex items-center gap-2">
             <button
               onClick={onToggleLike}
+              disabled={loading}
               className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 hover:bg-gray-100 active:scale-[0.98] transition"
             >
               {liked ? (
