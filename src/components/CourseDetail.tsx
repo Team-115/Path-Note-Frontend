@@ -1,8 +1,9 @@
 import { FaRegPaperPlane, FaHashtag, FaRegHeart, FaHeart, FaCommentDots, FaChevronDown, FaChevronUp,} from "react-icons/fa";
 import { FcClock } from "react-icons/fc";
 import type { CourseData } from "../types/course";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CommentItem from "./CommentItem";
+import { getFavoriteCountRequest } from "../apis/FavoriteApi";
 
 type Props = {  // 부모 -> 자식 데이터 넘겨주기 위해.
   course: CourseData | null;  // null 사용 이유 : 선택된 코스가 없음을 알려주기 위해.
@@ -16,6 +17,23 @@ export default function CourseDetail({ course }: Props) {
   const [likeCount, setLikeCount] = useState(0);
   //          state: 댓글 보여주기 상태          //
   const [showComments, setShowComments] = useState(false);
+
+  //          effect: 좋아요 수 조회          //
+  useEffect(() => {
+    if (!course) return;
+
+    const fetchLikeCount = async () => {
+    try {
+      const count = await getFavoriteCountRequest(course.course_id);
+      setLikeCount(count);
+    } catch (err) {
+      console.error("좋아요 갯수 불러오기 실패:", err);
+    }
+  };
+
+  fetchLikeCount();
+  }, [course]);
+
 
   // 데모용 데이터(표시 전용)
   const demoComments = [
