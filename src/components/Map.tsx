@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import MapPlaceInfo from './MapPlaceInfo';
 import CoursePlaceItem from './CoursePlaceItem';
 import CoursePlaceCreate from './CoursePlaceCreate';
@@ -292,13 +292,7 @@ const Map = ({
     }
   }, [markers, Tmapv3]);
 
-  //          event handler: 기본 정보창 닫기 시 컴포넌트 정리 이벤트 핸들러          //
-  const handleCloseInfo = () => {
-    setInfoVisible(false);
-    setInfoPoi(null);
-  };
-
-  //          event handler: 장소 리스트 패널 열기 이벤트 핸들러          //
+  //          event handler: 최종 코스 작성 패널 열기 이벤트 핸들러          //
   const handleOpenCoursePanel = () => {
     // ① 클릭 카드 우선: infoPoi + infoLat/lng
     const src = (infoPoi && infoLat != null && infoLng != null)
@@ -380,8 +374,15 @@ const Map = ({
     } catch (e: any) {
       console.error("[ERROR] createCourse failed:", e?.message || e);
     }
-};
+  };
 
+  //          event handler 기본 장소 정보 패널 닫기 핸들러          //
+  const handleCloseInfo = useCallback(() => {
+    setInfoVisible(false);
+    setInfoPoi(null);
+    setInfoLat(null);
+    setInfoLng(null);
+  }, []);
   // 화면에 표시할 POI를 한 곳에서 결정(클릭 정보 > 검색 선택)
   const displayPoi =
     infoPoi ??
