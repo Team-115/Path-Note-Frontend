@@ -14,8 +14,8 @@ export const KAKAO_LOG_IN_URL = () => `${API_DOMAIN}/oauth2/authorization/kakao`
  * accessToken을 인자로 받아 /api/users/me API 호출
  * 응답으로 UserType 형태의 객체를 반환한다
  */
-export const getSignInUserRequest = async (token: string): Promise<UserType> => {
-  const response = await axios.get(`${API_DOMAIN}/api/users/me`, {
+export const getSignInUserRequest = async (token: string) => {
+  const response = await axios.get<UserType>(`${API_DOMAIN}/api/users/me`, {
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
