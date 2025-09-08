@@ -41,6 +41,13 @@ export default function MapWithCategory() {
             console.log("코스 중심 정보가 불완전하여 지도를 움직일 수 없습니다.");
         }
     };
+
+  const handleCategorySelect = (category: string | null) => {
+    // 카테고리 변경 시 markers 상태를 빈 배열로 초기화
+    setMarkers([]); 
+    setSelectedCategory(category);
+  };
+
   const filteredCourses = selectedCategory
     ? courseList.filter(course =>
         course.course_places.some((place: { place_address: string | string[]; }) => place.place_address.includes(selectedCategory))
@@ -98,7 +105,7 @@ export default function MapWithCategory() {
 
   return (
     <>
-      <CategoryFilter selected={selectedCategory} onSelect={setSelectedCategory} />
+      <CategoryFilter selected={selectedCategory} onSelect={handleCategorySelect} />
       <CategoryPlaceCard course={filteredCourses} onCourseSelect={handlecourseSelect}/>
     </>
   );
