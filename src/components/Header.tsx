@@ -5,9 +5,11 @@ import SearchResults from './SearchResults';
 import { useMapStore } from '../stores/MapStores';
 import { KAKAO_LOG_IN_URL, getSignInUserRequest } from '../apis/GetUserInfoApi';
 import useLoginUserStore from '../stores/LoginUserStores';
+import { useNavigate } from 'react-router';
 
 //          component: 헤더 컴포넌트          //
 const Header = () => {
+  const navigate = useNavigate();
   const [sortType, setSortType] = useState<'A' | 'R'>('A'); // A: 정확도순, R: 거리순
   const { center } = useMapStore();               
   const { setLoginUser, resetLoginUser, loginUser } = useLoginUserStore();
@@ -19,6 +21,14 @@ const Header = () => {
     setIsSearching,
     setIsResultsVisible 
   } = useSearchStore();
+
+   const goToHome = () => {
+    navigate('/'); // 홈 페이지로 이동
+  };
+
+  const goToCourseBoard = () => {
+    navigate('/courseboard'); // CourseBoard 페이지로 이동
+  };
   
   //          effect: OAuth 리다이렉트후 토큰회수 -> 로컬스토리지 저장 -> 사용자 정보 저장          //
   /**
@@ -112,14 +122,14 @@ const Header = () => {
   //          render:헤더 컴포넌트 랜더링          //
   return (
     <>
-      <header className="fixed rounded-sm max-h-16 top-3 left-1 right-1 z-150 backdrop-blur-xs bg-white/15 shadow-sm hover:shadow-lg border-b border-gray-200 transition-all hover:bg-white/85">
+      <header className="fixed rounded-full mx-5 max-h-16 top-3 left-1 right-1 z-150 backdrop-blur-xs bg-white/15 shadow-sm hover:shadow-lg border-b border-gray-200 transition-all hover:bg-white/85">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* 로고 */}
             <div className="flex items-center">
-              <div className="flex-shrink-0">
-                P A T H N O T E
-              </div>
+              <button onClick={goToHome} className="text-lg font-bold text-main-200 hover:text-main-500 hover:cursor-pointer">
+                  P A T H N O T E
+              </button>
             </div>
 
             {/* 검색바 */}
@@ -175,7 +185,13 @@ const Header = () => {
               </div>
               </div>
             </div>
-
+            {/* 코스게시판 버튼 */}
+              <button
+                onClick={goToCourseBoard}
+                className="text-sm text-gray-700 hover:text-gray-900 hover:cursor-pointer" 
+              >
+              코스게시판
+              </button>
           {/* 로그인/회원가입 버튼 */}
           <div className="hidden md:block">
             <div className="ml-4 flex items-center md:ml-6">
@@ -192,12 +208,11 @@ const Header = () => {
                 </button>
               </div>
             ) : (
-              <button
+                <img
+                src = "src/images/kakao_login_small.png"
                 onClick={onKakaoLoginButtonClickHandler}
-                className="ml-3 bg-main-100 hover:bg-main-200 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors"
-              >
-                카카오로그인
-              </button>
+                className=''
+                />
             )}
             </div>
           </div>

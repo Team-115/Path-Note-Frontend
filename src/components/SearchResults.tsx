@@ -34,8 +34,8 @@ const SearchResults = () => {
 
   //          render: 검색 결과 컴포넌트 랜더링          //
   return (
-    <div className="fixed inset-0 z-40" onClick={handleOverlayClick}>
-      <div className="fixed top-20 left-1/2 transform -translate-x-1/2 w-full max-w-md mx-4 z-50">
+    <div className="fixed inset-0 z-60" onClick={handleOverlayClick}>
+      <div className="fixed top-20 left-1/2 transform -translate-x-1/2 w-full max-w-md mx-4 z-55">
         <div className="bg-white/85 rounded-lg shadow-lg border border-gray-200 max-h-96 overflow-y-auto">
           <div className="p-3 border-b border-gray-200">
             <h3 className="text-sm font-semibold text-gray-700">검색 결과</h3>

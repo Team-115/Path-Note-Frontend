@@ -60,7 +60,7 @@ export default function CourseBoard() {
 
   return (
     <div className="p-15 bg-base-100 min-h-screen flex justify-center">
-      <div className="w-full max-w-[2000px] grid grid-cols-[1.5fr_2.5fr_1.5fr] gap-8">
+      <div className="w-full max-w-[2000px] grid grid-cols-[1.5fr_2.5fr_1.5fr] gap-8 mt-11">
         <div className="bg-white rounded-xl bg-opacity-50 shadow-md p-6 col-span-1">
           <CoursePlaces course={selectedCourse} places={places} />
         </div>

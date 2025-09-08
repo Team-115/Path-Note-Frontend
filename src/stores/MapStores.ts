@@ -1,19 +1,23 @@
 import { create } from 'zustand';
 import type { TMapLatLng } from '../types/map';
+import type { PlacesData } from '../types/places';
 
 interface MapState {
   center: TMapLatLng;
   zoom: number;
+  markers: PlacesData[];
 
   moveToLocation: (lat: number, lng: number) => void;
   changeZoom: (newZoom: number) => void;
   setCurrentCenter: (center: TMapLatLng) => void;
   setZoom: (zoom: number) => void;
+  setMarkers: (markers: PlacesData[]) => void;
 }
 
 export const useMapStore = create<MapState>((set, get) => ({
   center: { lat: 37.5665, lng: 126.9780 }, // 서울 시청 기본값
   zoom: 15,
+  markers: [],
 
   moveToLocation: (lat: number, lng: number) => {
     set({ center: { lat, lng } });
@@ -29,5 +33,9 @@ export const useMapStore = create<MapState>((set, get) => ({
 
   setZoom: (zoom: number) => {
     set({ zoom });
+  },
+
+  setMarkers: (markers) => {
+    set(() => ({ markers }))
   },
 }));
