@@ -7,7 +7,6 @@ import type { PlacesData } from "../../types/places";
 import CoursePlaces from "../../components/CoursePlaces";
 import CourseDetail from "../../components/CourseDetail";
 import axios from "axios";
-import { api } from "../../apis/ApiHeaderUtil";
 
 export default function CourseBoard() {
   const [selectedCourse, setSelectedCourse] = useState<CourseData | null>(null);  // 선택된 코스 정보 저장
@@ -18,7 +17,7 @@ export default function CourseBoard() {
   useEffect(() => { // 컴포넌트가 처음 렌더링 될 때 코스 리스트를 불러오기 위함
     (async () => {  // () 없으면 안됨!! 즉시 실행 함수(IIFE) 형태이기 때문임. 즉, () 빼면 함수만 선언한 꼴이고 그 함수를 실행을 못 해서 api 호출x, 상태 업데이트x
       try {
-        const rawCourses = await api.get(`/api/courses`); // 백엔드 api로부터 코스 리스트 가져옴
+        const rawCourses = await axios.get(`/api/courses`); // 백엔드 api로부터 코스 리스트 가져옴
         const convertedCourses: CourseData[] = rawCourses.data.map((course: any) => ({  // 백엔드 응답 데이터를 프론트에서 사용하는 형태로 변환
           course_id: course.course_id,
           course_name: course.course_name,
@@ -40,8 +39,8 @@ export default function CourseBoard() {
     setSelectedCourse(course); 
 
     try {
-      const response = await api.get(`/api/courses/${course.course_id}`); // 백엔드 api로부터 코스의 상세 데이터 가져옴.
-      setPlaces(response.data.coursePlaces || []);
+      const response = await axios.get(`/api/courses/${course.course_id}`); // 백엔드 api로부터 코스의 상세 데이터 가져옴.
+      setPlaces(response.data.course_places || []);
     } catch (error) {
       console.error("코스 상세 불러오기 실패:", error);
       setPlaces([]);

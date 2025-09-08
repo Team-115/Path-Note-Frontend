@@ -11,7 +11,7 @@ type Props = {  // 부모 -> 자식 데이터 넘겨주기 위해.
   course: CourseData | null;  // null 사용 이유 : 선택된 코스가 없음을 알려주기 위해.
 };
 
-// 중앙 컴포넌트 (코스 상세 정보)
+//          component: 중앙 코스 상세 정보 컴포넌트          //
 export default function CourseDetail({ course }: Props) {
   //          state: 좋아요 상태          //
   const [liked, setLiked] = useState(false);
@@ -51,7 +51,7 @@ export default function CourseDetail({ course }: Props) {
 const onCommentKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
   if (e.key === "Enter") {
     e.preventDefault();
-    onSubmitComment();
+    onSubmitComment(); 
   }
 };
 
@@ -121,6 +121,7 @@ const onCommentKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     );
   }
 
+  //          render: 중앙 코스 상세 정보 컴포넌트          //
   return (
     <div className="w-full">
       <div className="flex justify-between items-center mb-2">
