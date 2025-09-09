@@ -62,7 +62,7 @@ const Map = ({
   const idRef = useRef(1);
 
   //           function: 클릭시, 검색시 상세정보 공통 헬퍼 함수          //
-    const resetAndOpenInfo = (poi: InfoPoiType, lat: number, lng: number) => {
+  const resetAndOpenInfo = (poi: InfoPoiType, lat: number, lng: number) => {
     // 1) 먼저 리셋
     setInfoVisible(false);
     setInfoPoi(null);
@@ -99,57 +99,57 @@ const Map = ({
 
     //          event handler: 클릭 → ReverseLavel PoiId 확보 → 상세정보 이벤트 핸들러          //
     const handleClick = async (e: any) => {
-    // 1) 클릭 좌표 추출 변수 정의: 공식 필드 사용
-    const lat = e?.data?.lngLat?.lat ?? null;
-    const lng = e?.data?.lngLat?.lng ?? null;
+      // 1) 클릭 좌표 추출 변수 정의: 공식 필드 사용
+      const lat = e?.data?.lngLat?.lat ?? null;
+      const lng = e?.data?.lngLat?.lng ?? null;
 
-    if (lat == null || lng == null) {
-      console.warn('[CLICK] lat/lng 없음. raw event:', e);
-      return;
-    }
-
-    console.log('클릭된 좌표 뽑기 성공', { lat, lng });
-
-    setInfoLat(lat);      // 장소 기본컴포넌트 좌표갱신
-    setInfoLng(lng);
-    setInfoVisible(false); // 장소 기본컴포넌트 창 열림
-    setInfoPoi(null);     // 이전 값 초기화
-
-    try {
-      // 2) Reverse Label → poiId 확보
-      const rev = await reverseLabelRequest(Number(lat.toFixed(6)), Number(lng.toFixed(6)));
-      if (!rev) {
-        console.warn('[STEP1] reverseLabel 결과 없음');
+      if (lat == null || lng == null) {
+        console.warn('[CLICK] lat/lng 없음. raw event:', e);
         return;
       }
 
-      // 문서: 해당 지점에 POI 없으면 id = "0"
-      if (rev.id === '0') {
-        console.log('[STEP1] POI 없음. reverse 좌표만 표시', rev);
-        return;
+      console.log('클릭된 좌표 뽑기 성공', { lat, lng });
+
+      setInfoLat(lat);      // 장소 기본컴포넌트 좌표갱신
+      setInfoLng(lng);
+      setInfoVisible(false); // 장소 기본컴포넌트 창 열림
+      setInfoPoi(null);     // 이전 값 초기화
+
+      try {
+        // 2) Reverse Label → poiId 확보
+        const rev = await reverseLabelRequest(Number(lat.toFixed(6)), Number(lng.toFixed(6)));
+        if (!rev) {
+          console.warn('[STEP1] reverseLabel 결과 없음');
+          return;
+        }
+
+        // 문서: 해당 지점에 POI 없으면 id = "0"
+        if (rev.id === '0') {
+          console.log('[STEP1] POI 없음. reverse 좌표만 표시', rev);
+          return;
+        }
+        console.log('[STEP1] poiId 획득:', rev.id);
+
+        // 3) POI 상세조회
+        const d = await getPoiDetailRequest(rev.id);
+
+        setInfoPoi({
+          poiId: d?.id || rev.id,
+          name: d?.name ?? rev.name ?? '이름 없음',
+          address: d?.bldAddr || d?.address || '',
+          tel: d?.tel || '',
+          category: d?.bizCatName || '', // 태그로 표기
+        });
+        console.log('[STEP3] ReverseLabel → 상세조회 payload');
+        console.table(d);
+
+        setInfoVisible(true);
+    
+        
+      } catch (err) {
+        console.error('[ERROR] Reverse/상세 조회 실패:', (err as Error).message);
       }
-      console.log('[STEP1] poiId 획득:', rev.id);
-
-      // 3) POI 상세조회
-      const d = await getPoiDetailRequest(rev.id);
-
-      setInfoPoi({
-        poiId: d?.id || rev.id,
-        name: d?.name ?? rev.name ?? '이름 없음',
-        address: d?.bldAddr || d?.address || '',
-        tel: d?.tel || '',
-        category: d?.bizCatName || '', // 태그로 표기
-      });
-      console.log('[STEP3] ReverseLabel → 상세조회 payload');
-      console.table(d);
-
-      setInfoVisible(true);
-  
-      
-    } catch (err) {
-      console.error('[ERROR] Reverse/상세 조회 실패:', (err as Error).message);
-    }
-  };
+    };
 
     map.on('Click', handleClick);
 
