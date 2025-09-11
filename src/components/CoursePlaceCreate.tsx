@@ -168,7 +168,7 @@ export default function CoursePlaceCreate({  onCancel, places, onSubmit,}: Cours
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="예) 빵길"
-          className="h-9 w-full rounded-xl bg-main-100 px-3 text-[14px] outline-none focus:ring-2 focus:ring-main-200/50"
+          className="h-9 w-full rounded-xl bg-main-100/50 px-3 text-[14px] outline-none focus:ring-2 focus:ring-main-200/50"
         />
       </div>
 
@@ -180,7 +180,7 @@ export default function CoursePlaceCreate({  onCancel, places, onSubmit,}: Cours
           value={category}
           onChange={(e) => setCategory(e.target.value)}
           placeholder="예) 맛집투어"
-          className="h-9 w-full rounded-xl bg-main-100 px-3 text-[14px] outline-none focus:ring-2 focus:ring-main-200/50"
+          className="h-9 w-full rounded-xl bg-main-100/50 px-3 text-[14px] outline-none focus:ring-2 focus:ring-main-200/50"
         />
       </div>
 
@@ -202,7 +202,7 @@ export default function CoursePlaceCreate({  onCancel, places, onSubmit,}: Cours
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="예) 성심당에 대전이 있지"
-          className="w-full h-40 md:h-48 rounded-2xl bg-main-100 px-3 py-2 text-[14px] outline-none resize-none focus:ring-2 focus:ring-main-200/50"
+          className="w-full h-40 md:h-48 rounded-2xl bg-main-100/50 px-3 py-2 text-[14px] outline-none resize-none focus:ring-2 focus:ring-main-200/50"
         />
       </div>
     </section>
