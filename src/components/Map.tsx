@@ -53,14 +53,12 @@ const Map = ({
   //          state: 최종 코스 생성 폼 패널 상태 관리          //
   const [isCoursePlaceCreatePanelOpen, setIsCoursePlaceCreatePanelOpen] = useState(false);
 
-  
   // 장소 정보 컴포넌트에 표시할 POI정보는 selectedPOI 기반
   // 추후 지도 클릭으로 얻은 상세정보(d)도 보여주려면 컴포넌트 생성 후 별도 로컬 상태(infoPoi) 도입 또는 selectedPOI 전역 업데이트 필요
   const selectedPOI = useSearchStore(s => s.selectedPOI);
   const { center, zoom, markers } = useMapStore();
   // 경로 순서 상태 관리용 단순 증가 ID
   const idRef = useRef(1);
-
 
   //          effect: 지도 초기화, 클릭 이벤트 바인딩/해제          //
   useEffect(() => {
