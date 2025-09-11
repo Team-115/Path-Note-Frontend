@@ -38,7 +38,7 @@ const Map = ({
   const polylineRef = useRef<any>(null);
 
   const { Tmapv3 } = window as any;
-
+  
   //          state: 기본 장소 컴포넌트 정보 상태 관리          //
   const [infoPoi, setInfoPoi] = useState<InfoPoiType | null>(null);
   //          state: 장소 정보 컴포넌트 창 표시 상태 관리          //
@@ -61,24 +61,7 @@ const Map = ({
   // 경로 순서 상태 관리용 단순 증가 ID
   const idRef = useRef(1);
 
-  //           function: 클릭시, 검색시 상세정보 공통 헬퍼 함수          //
-  const resetAndOpenInfo = (poi: InfoPoiType, lat: number, lng: number) => {
-    // 1) 먼저 리셋
-    setInfoVisible(false);
-    setInfoPoi(null);
 
-    // 좌표 갱신
-    setInfoLat(lat);
-    setInfoLng(lng);
-
-    // 2) 다음 페인트 타이밍에 새 데이터로 오픈
-    // (한 프레임 비워주면 "리셋되면서 정보가 들어가는" 느낌이 깔끔)
-    requestAnimationFrame(() => {
-      setInfoPoi(poi);
-      setInfoVisible(true);
-    });
-  };
-  
   //          effect: 지도 초기화, 클릭 이벤트 바인딩/해제          //
   useEffect(() => {
     if (!Tmapv3 || mapInstanceRef.current) return;
@@ -95,10 +78,12 @@ const Map = ({
         const map = new Tmapv3.Map('map_div', mapOptions);
         mapInstanceRef.current = map;
 
-    
+  
 
     //          event handler: 클릭 → ReverseLavel PoiId 확보 → 상세정보 이벤트 핸들러          //
     const handleClick = async (e: any) => {
+      const T = (window as any).Tmapv3;
+      const map = mapInstanceRef.current;
       // 1) 클릭 좌표 추출 변수 정의: 공식 필드 사용
       const lat = e?.data?.lngLat?.lat ?? null;
       const lng = e?.data?.lngLat?.lng ?? null;
@@ -109,6 +94,24 @@ const Map = ({
       }
 
       console.log('클릭된 좌표 뽑기 성공', { lat, lng });
+
+      // 단일 선택 마커 갱신(이전 마커 제거 또는 위치 이동)
+      const pos = new T.LatLng(lat, lng);
+      if (!markerRef.current) {
+        markerRef.current = new T.Marker({
+          position: pos,
+          map,
+          title: '선택 위치',
+        });
+      } else {
+        // 기존 마커를 맵에 연결(혹시 null일 수도 있으니)하고 위치만 이동
+        markerRef.current.setMap(map);
+        markerRef.current.setPosition(pos);
+      }
+
+      map.setCenter(pos);
+      map.setZoom?.(17);
+      
 
       setInfoLat(lat);      // 장소 기본컴포넌트 좌표갱신
       setInfoLng(lng);
@@ -218,74 +221,97 @@ const Map = ({
       markerRef.current.setMap(map);
     }
 
-    resetAndOpenInfo(
-    {
-      name: selectedPOI.name,
-      address: selectedPOI.address,
-      // 선택적으로 확장 가능 (selectedPOI에 있으면 전달)
-      // tel: selectedPOI.tel,
-      // category: selectedPOI.category,
-    } as InfoPoiType,
-    selectedPOI.lat,
-    selectedPOI.lng
-  );
+    // 카드 초기화 후 좌표 세팅
+    setInfoVisible(false);
+    setInfoPoi(null);
+    setInfoLat(selectedPOI.lat);
+    setInfoLng(selectedPOI.lng);
+  
+    // 상세조회로 동일 카드 형식 맞추기
+    (async () => {
+      try {
+        let detail: Awaited<ReturnType<typeof getPoiDetailRequest>> | null = null;
+        if (selectedPOI.poiId) {
+          detail = await getPoiDetailRequest(String(selectedPOI.poiId));
+        }
 
-    console.log('[MAP] 선택된 장소로 이동 & 마커 표시', {
-      poiId: selectedPOI.poiId,
-      name: selectedPOI.name,
-      address: selectedPOI.address,
-      lat: selectedPOI.lat,
-      lng: selectedPOI.lng,
-    });
-  }, [selectedPOI, Tmapv3]);
+        const info: InfoPoiType = {
+          poiId: String(selectedPOI.poiId ?? detail?.id ?? ''),
+          name: detail?.name ?? selectedPOI.name ?? '이름 없음',
+          address: detail?.bldAddr || detail?.address || selectedPOI.address || '',
+          tel: detail?.tel || '',                // 클릭 때와 동일하게 채움
+          category: detail?.bizCatName || '',   // 클릭 때와 동일하게 채움
+        };
 
-   useEffect(() => {
-    if (!mapInstanceRef.current || !Tmapv3) return;
-
-    // 기존 마커를 모두 제거합니다.
-    if (coursemarkerRef.current.length > 0) {
-      coursemarkerRef.current.forEach(marker => marker.setMap(null));
-      coursemarkerRef.current = [];
-    }
-    
-    // 기존 선을 제거합니다.
-    if (polylineRef.current) {
-      polylineRef.current.setMap(null);
-      polylineRef.current = null;
-    }
-
-    // 새로운 마커와 선을 생성하여 지도에 추가합니다.
-    if (markers.length > 0) {
-      const polylinePoints: any[] = [];
-      const bounds = new Tmapv3.LatLngBounds();
-
-      markers.forEach((place: { place_coordinate_x: string; place_coordinate_y: string; }) => {
-        const lat = parseFloat(place.place_coordinate_x);
-        const lng = parseFloat(place.place_coordinate_y);
-        const position = new Tmapv3.LatLng(lat, lng);
-        
-        // 마커 생성
-        const marker = new Tmapv3.Marker({
-          position: position,
-          map: mapInstanceRef.current,
+        // 한 프레임 비워서 깔끔하게 리렌더
+        requestAnimationFrame(() => {
+          setInfoPoi(info);
+          setInfoVisible(true);
         });
-        coursemarkerRef.current.push(marker);
 
-        // 선을 그릴 좌표와 지도의 경계를 확장합니다.
-        polylinePoints.push(position);
-        bounds.extend(position);
-      });
-
-      // 장소들을 연결하는 선을 그립니다.
-      if (polylinePoints.length > 1) {
-        polylineRef.current = new Tmapv3.Polyline({
-          path: polylinePoints,
-          strokeColor: "#ff0000",
-          strokeWeight: 4,
-          directionColor: "#333333", // 진행 방향 화살표 색상
-          map: mapInstanceRef.current
+        console.log('[MAP] 검색 선택 상세 적용', { base: selectedPOI, detail });
+      } catch (e: any) {
+        console.error('[MAP] 검색 선택 상세조회 실패:', e?.message || e);
+        // 실패해도 기본 정보로 카드 표출
+        requestAnimationFrame(() => {
+          setInfoPoi({
+            poiId: String(selectedPOI.poiId ?? ''),
+            name: selectedPOI.name,
+            address: selectedPOI.address,
+          });
+          setInfoVisible(true);
         });
       }
+    })();
+  }, [selectedPOI, Tmapv3]);
+
+  useEffect(() => {
+  if (!mapInstanceRef.current || !Tmapv3) return;
+
+  // 기존 마커를 모두 제거합니다.
+  if (coursemarkerRef.current.length > 0) {
+    coursemarkerRef.current.forEach(marker => marker.setMap(null));
+    coursemarkerRef.current = [];
+  }
+  
+  // 기존 선을 제거합니다.
+  if (polylineRef.current) {
+    polylineRef.current.setMap(null);
+    polylineRef.current = null;
+  }
+
+  // 새로운 마커와 선을 생성하여 지도에 추가합니다.
+  if (markers.length > 0) {
+    const polylinePoints: any[] = [];
+    const bounds = new Tmapv3.LatLngBounds();
+
+    markers.forEach((place: { place_coordinate_x: string; place_coordinate_y: string; }) => {
+      const lat = parseFloat(place.place_coordinate_x);
+      const lng = parseFloat(place.place_coordinate_y);
+      const position = new Tmapv3.LatLng(lat, lng);
+      
+      // 마커 생성
+      const marker = new Tmapv3.Marker({
+        position: position,
+        map: mapInstanceRef.current,
+      });
+      coursemarkerRef.current.push(marker);
+
+      // 선을 그릴 좌표와 지도의 경계를 확장합니다.
+      polylinePoints.push(position);
+      bounds.extend(position);
+    });
+
+    // 장소들을 연결하는 선을 그립니다.
+    if (polylinePoints.length > 1) {
+      polylineRef.current = new Tmapv3.Polyline({
+        path: polylinePoints,
+        strokeColor: "#ff0000",
+        strokeWeight: 4,
+        directionColor: "#333333", // 진행 방향 화살표 색상
+        map: mapInstanceRef.current
+      });
+    }
 
       // 모든 마커가 화면에 보이도록 지도를 맞춥니다.
       mapInstanceRef.current.fitBounds(bounds);

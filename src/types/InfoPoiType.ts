@@ -4,4 +4,6 @@ export type InfoPoiType = {
   address?: string;
   tel?: string;
   category?: string; // Tmap 상세의 bizCatName
+  lat?: number;
+  lng?: number;
 };

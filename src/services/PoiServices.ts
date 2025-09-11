@@ -2,6 +2,8 @@
 import axios from "axios";
 import type { TMapLatLng } from "../types/map";
 import type { POIResult } from "../stores/SearchStores";
+import type { InfoPoiType } from "../types/InfoPoiType";
+import { getPoiDetailRequest } from "./TmapPoiServices";
 
 type SortType = 'A' | 'R';
 const TMAP_API_BASE = 'https://apis.openapi.sk.com';
@@ -29,12 +31,13 @@ function toPOIResult(poi: any): POIResult {
     poiId: String(poi?.poiId ?? ''),
     name: String(poi?.name ?? ''),
     address: addr ?? '',
-    lat: isFinite(lat) ? lat : 0,
-    lng: isFinite(lng) ? lng : 0,
+    lat: Number.isFinite(lat) ? lat : 0,
+    lng: Number.isFinite(lng) ? lng : 0,
     frontLat: poi?.frontLat,
     frontLon: poi?.frontLon,
   };
 }
+
 
 export const searchPOI = async (
   sortType: SortType,
@@ -42,7 +45,7 @@ export const searchPOI = async (
   center?: TMapLatLng,
   count: number = 12,
   radiusKm: number = 1
-): Promise<POIResult[]> => {
+): Promise<InfoPoiType[]> => {
   const params: Record<string, any> = {
     version: 1,
     page: 1,
@@ -65,16 +68,36 @@ export const searchPOI = async (
   console.log(res);
 
   if (res.status === 204) return [];
-
   if (res.status >= 400) {
     console.error('[POI] HTTP', res.status, res.statusText);
     console.error('[POI] body =', res.data);
     throw new Error(`요청 실패: HTTP ${res.status}`);
   }
+  // poiId 배열만 추출
+  const listRaw = res.data?.searchPoiInfo?.pois?.poi ?? [];
+  const pois = Array.isArray(listRaw) ? listRaw : listRaw ? [listRaw] : [];
+  const ids: string[] = pois
+    .map((p: any) => String(p?.poiId ?? p?.id ?? ""))
+    .filter((id: string) => id && id !== "0");
 
-  const poisNode = res.data?.searchPoiInfo?.pois;
-  const listRaw = poisNode?.poi ?? [];
-  const list = Array.isArray(listRaw) ? listRaw : (listRaw ? [listRaw] : []);
+  if (ids.length === 0) return [];
 
-  return list.map(toPOIResult);
+  // poiId별 상세조회 → InfoPoiType 배열로 반환
+  const detailed = await Promise.all(
+    ids.map(async (id) => {
+      const d = await getPoiDetailRequest(id);
+      if (!d) return null;
+      return {
+        poiId: d.id ?? id,
+        name: d.name ?? "",
+        address: d.bldAddr || d.address || "",
+        tel: d.tel || "",
+        category: d.bizCatName || "",
+        lat: d.lat || "",
+        lng: d.lon || "",
+      } as InfoPoiType;
+    })
+  );
+
+  return detailed.filter(Boolean) as InfoPoiType[];
 };
