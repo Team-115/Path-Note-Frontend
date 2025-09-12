@@ -6,10 +6,14 @@ import CommentItem from "./CommentItem";
 import { getFavoriteCountRequest, postFavoriteRequest, getIsLikedRequest } from "../apis/FavoriteApi";
 import { getCommentsRequest, postCommentRequest} from "../apis/CommentApi";
 import type { CommentResponse } from "../apis/CommentApi";
+import { useNavigate } from "react-router";
 
 type Props = {  // 부모 -> 자식 데이터 넘겨주기 위해.
   course: CourseData | null;  // null 사용 이유 : 선택된 코스가 없음을 알려주기 위해.
 };
+
+const MAP_ROUTE ="/";
+
 
 //          component: 중앙 코스 상세 정보 컴포넌트          //
 export default function CourseDetail({ course }: Props) {
@@ -27,6 +31,19 @@ export default function CourseDetail({ course }: Props) {
   const [commentText, setCommentText] = useState("");
   //          state: 댓글 등록 중복 방지 상태          //
   const [submitting, setSubmitting] = useState(false);
+
+  const navigate = useNavigate();
+
+  //          event handler: 수정 버튼 이벤트 핸들러          //
+  const onUpdateButtonClick = () => {
+    if (!course) return;
+    navigate(MAP_ROUTE, {
+      state: {
+        openPanels: true,
+        courseId: course.course_id
+      }
+    });
+  } 
   
   //          event handler: 댓글 작성 이벤트 핸들러          //
   const onSubmitComment = async () => {
@@ -127,7 +144,10 @@ const onCommentKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
       <div className="flex justify-between items-center mb-2">
         <h2 className="text-xl font-bold">{course.course_name}</h2>
         <div className="space-x-2">
-          <button className="px-2 py-1 bg-main-200 hover:bg-main-300 text-sm text-white rounded">수정</button>
+          <button 
+            className="px-2 py-1 bg-main-200 hover:bg-main-300 text-sm text-white rounded"
+            onClick={onUpdateButtonClick}  
+            >수정</button>
           <button className="px-2 py-1 bg-main-200 hover:bg-main-300 text-sm text-white rounded">삭제</button>
         </div>
       </div>

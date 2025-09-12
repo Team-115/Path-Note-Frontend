@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import type { CoursePlaceType } from "../types/CoursePlaceType";
 import type { CourseCreateRequestDto, CoursePlaceDto } from "../types/CoursePlaceDto";
 
@@ -7,15 +7,24 @@ interface CoursePlaceCreateProps {
   onCancel: () => void;                             // 취소 버튼 클릭시 실행되는 콜백
   places: CoursePlaceType[];                        // 선택된 장소리스트
   onSubmit: (payload: CourseCreateRequestDto) => void; // 입력 완료시 서버에 보낼 데이터를 전달하는 콜백
+  initialValues?: { name: string; description: string; categoryName: string };
 }
 
 //          component: 코스 장소 등록 컴포넌트          //
-export default function CoursePlaceCreate({  onCancel, places, onSubmit,}: CoursePlaceCreateProps) {
+export default function CoursePlaceCreate({  onCancel, places, onSubmit, initialValues,}: CoursePlaceCreateProps) {
 
   //          states: 폼 데이터 상태 관리          //
-  const [name, setName] = useState("");
-  const [category, setCategory] = useState("");
-  const [description, setDescription] = useState("");
+  const [name, setName] = useState(initialValues?.name ?? "");
+  const [category, setCategory] = useState(initialValues?.categoryName ?? "");
+  const [description, setDescription] = useState(initialValues?.description ?? "");
+
+  //          effect: 코스 수정시 가져온 코스 데이터 반영          //
+  useEffect(() => {
+    if (!initialValues) return;
+    setName(initialValues.name ?? "");
+    setCategory(initialValues.categoryName ?? "");
+    setDescription(initialValues.description ?? "");
+  }, [initialValues]);
 
   //          function: 날짜 시간 포맷터 (문서 예시: "YYYY-MM-DD HH:mm")          //
   const pad = (n: number) => String(n).padStart(2, "0");

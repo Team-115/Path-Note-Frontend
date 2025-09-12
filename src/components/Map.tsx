@@ -4,11 +4,14 @@ import CoursePlaceItem from './CoursePlaceItem';
 import CoursePlaceCreate from './CoursePlaceCreate';
 import type { CoursePlaceType } from '../types/CoursePlaceType';
 import { useSearchStore } from '../stores/SearchStores';
-import { createCourse } from '../apis/CreateCoursePlaceApi';
+import { createCourse, getCourseDetail } from '../apis/CreateCoursePlaceApi';
 import { reverseLabelRequest, getPoiDetailRequest } from '../services/TmapPoiServices';
 import type { InfoPoiType } from '../types/InfoPoiType';
 import type { CourseCreateRequestDto } from '../types/CoursePlaceDto';
+import type { UpdateCourseStateType, UpdateStateType } from '../types/UpdateStateType';
 import { useMapStore } from '../stores/MapStores';
+import { useLocation, useNavigate } from 'react-router';
+import Swal from 'sweetalert2';
 
 interface MapProps {
   width: string;
@@ -38,6 +41,10 @@ const Map = ({
   const polylineRef = useRef<any>(null);
 
   const { Tmapv3 } = window as any;
+
+  const location = useLocation() as { state?: UpdateStateType };
+  const navigate = useNavigate();
+
   
   //          state: 기본 장소 컴포넌트 정보 상태 관리          //
   const [infoPoi, setInfoPoi] = useState<InfoPoiType | null>(null);
@@ -316,6 +323,56 @@ const Map = ({
     }
   }, [markers, Tmapv3]);
 
+  // 수정 중인 코스 ID 기억
+  const editCourseIdRef = useRef<number | null>(null);
+
+  //          state: 코스
+  const [initialForm, setInitialForm] = useState<UpdateCourseStateType | null>(null);
+  //          effect: 코스 수정시 패널 열림, 데이터 가져오기          //
+  useEffect(() => {
+    const s = location.state;
+    if (!s?.openPanels) return;
+
+    setIsCoursePanelOpen(true);
+    setIsCoursePlaceCreatePanelOpen(true);
+
+  // 코스 상세를 불러와서 작성
+  if (s.courseId) {
+    editCourseIdRef.current = s.courseId;
+    (async () => {
+      const token = localStorage.getItem("accessToken") ?? "";
+      const data = await getCourseDetail(s.courseId, token);
+      // data.course_places를 CoursePlaceItem 형태로 매핑해서 주입
+      setCoursePlaces(
+        data.course_places
+          .sort((a, b) => Number(a.sequence_index) - Number(b.sequence_index))
+          .map((p, i) => ({
+            id: i + 1,
+            poiId: String(p.poi_id),
+            name: p.place_name,
+            address: p.place_address,
+            category: p.place_category ?? "",
+            lat: Number(p.place_coordinate_x),
+            lng: Number(p.place_coordinate_y),
+            arrivalTime: p.place_enter_time ?? "",
+            departureTime: p.place_leave_time ?? "",
+          }))
+      );
+      idRef.current = data.course_places.length + 1;
+
+       setInitialForm({
+        name: data.course_name ?? "",
+        description: data.course_description ?? "",
+        categoryName: data.course_category?.name ?? "",
+      })
+    })();
+  }
+
+  // 뒤로가기/새로고침 시 또 열리지 않도록 state 비우기
+  navigate('.', { replace: true, state: {} });
+    
+  }, [location.state, navigate]);
+
   //          event handler: 최종 코스 작성 패널 열기 이벤트 핸들러          //
   const handleOpenCoursePanel = () => {
     // ① 클릭 카드 우선: infoPoi + infoLat/lng
@@ -395,6 +452,12 @@ const Map = ({
       setIsCoursePlaceCreatePanelOpen(false);
       setIsCoursePanelOpen(false);
       setCoursePlaces([]);
+
+      await Swal.fire({
+        icon: "success",
+        title: "코스 등록 완료!",
+        text: "새로운 코스가 성공적으로 등록되었습니다.",
+      });
     } catch (e: any) {
       console.error("[ERROR] createCourse failed:", e?.message || e);
     }
@@ -439,7 +502,7 @@ const Map = ({
       {/* 최종 코스 등록 패널 */}
       {isCoursePlaceCreatePanelOpen && (
         <div className="absolute right-1/8 top-50">
-          <CoursePlaceCreate onCancel={handleCloseCoursePlaceCreate} places={coursePlaces} onSubmit={handleSubmitCourse} />
+          <CoursePlaceCreate onCancel={handleCloseCoursePlaceCreate} initialValues={initialForm ?? undefined} places={coursePlaces} onSubmit={handleSubmitCourse} />
         </div>
       )}
 
