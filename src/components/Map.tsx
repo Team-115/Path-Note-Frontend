@@ -11,6 +11,7 @@ import type { UpdateCourseStateType, UpdateStateType, CourseSubmitType } from '.
 import { useMapStore } from '../stores/MapStores';
 import { useLocation, useNavigate } from 'react-router';
 import Swal from 'sweetalert2';
+import { toHHmm } from '../utils/TimeUtil';
 
 interface MapProps {
   width: string;
@@ -329,7 +330,7 @@ const Map = ({
   // 수정 중인 코스 ID 기억
   const editCourseIdRef = useRef<number | null>(null);
 
-  //          state: 코스
+  //          state: 코스 수정 모드 상태          //
   const [initialForm, setInitialForm] = useState<UpdateCourseStateType | null>(null);
   //          effect: 코스 수정시 패널 열림, 데이터 가져오기          //
   useEffect(() => {
@@ -345,7 +346,7 @@ const Map = ({
     editCourseIdRef.current = s.courseId;
     (async () => {
       const token = localStorage.getItem("accessToken") ?? "";
-      const data = await getCourseDetail(s.courseId, token);
+      const data = await getCourseDetail(s!.courseId!, token);
       // data.course_places를 CoursePlaceItem 형태로 매핑해서 주입
       setCoursePlaces(
         data.course_places
@@ -356,10 +357,10 @@ const Map = ({
             name: p.place_name,
             address: p.place_address,
             category: p.place_category ?? "",
-            lat: Number(p.place_coordinate_x),
-            lng: Number(p.place_coordinate_y),
-            arrivalTime: p.place_enter_time ?? "",
-            departureTime: p.place_leave_time ?? "",
+            lat: Number(p.place_coordinate_y),
+            lng: Number(p.place_coordinate_x),
+            arrivalTime: toHHmm(p.place_enter_time),
+            departureTime: toHHmm(p.place_leave_time), // ← 여기!
           }))
       );
       idRef.current = data.course_places.length + 1;
