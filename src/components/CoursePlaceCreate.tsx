@@ -264,6 +264,21 @@ export default function CoursePlaceCreate({  onCancel, places, onSubmit, initial
           placeholder="예) 맛집투어"
           className="h-9 w-full rounded-xl bg-main-100/50 px-3 text-[14px] outline-none focus:ring-2 focus:ring-main-200/50"
         />
+        {catOpen && catOptions.length > 0 && (
+          <ul className="absolute z-20 mt-1 max-h-56 w-full overflow-auto rounded-xl border border-black/10 bg-white shadow-lg">
+            {catOptions.map((opt, i) => (
+              <li
+                key={opt.id}
+                onMouseDown={(e) => { e.preventDefault(); pickCategory(opt.content); }}
+                className={`cursor-pointer px-3 py-2 text-[14px] hover:bg-main-100/40 ${
+                  i === catActive ? "bg-main-100/60" : ""
+                }`}
+              >
+                {opt.content}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {/* 이미지 업로드 */}
