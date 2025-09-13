@@ -4,11 +4,10 @@ import CoursePlaceItem from './CoursePlaceItem';
 import CoursePlaceCreate from './CoursePlaceCreate';
 import type { CoursePlaceType } from '../types/CoursePlaceType';
 import { useSearchStore } from '../stores/SearchStores';
-import { createCourse, getCourseDetail } from '../apis/CreateCoursePlaceApi';
+import { createCourse, getCourseDetail, updateCourse } from '../apis/CreateCoursePlaceApi';
 import { reverseLabelRequest, getPoiDetailRequest } from '../services/TmapPoiServices';
 import type { InfoPoiType } from '../types/InfoPoiType';
-import type { CourseCreateRequestDto } from '../types/CoursePlaceDto';
-import type { UpdateCourseStateType, UpdateStateType } from '../types/UpdateStateType';
+import type { UpdateCourseStateType, UpdateStateType, CourseSubmitType } from '../types/UpdateStateType';
 import { useMapStore } from '../stores/MapStores';
 import { useLocation, useNavigate } from 'react-router';
 import Swal from 'sweetalert2';
@@ -59,6 +58,10 @@ const Map = ({
   const [coursePlaces, setCoursePlaces] = useState<CoursePlaceType[]>([]);
   //          state: 최종 코스 생성 폼 패널 상태 관리          //
   const [isCoursePlaceCreatePanelOpen, setIsCoursePlaceCreatePanelOpen] = useState(false);
+  //          state: 코스 생성, 수정 모드 상태 관리          //
+  const [mode, setMode] = useState<'create' | 'edit'>('create');
+  //          state: 코스 생성, 수정 제출 상태 관리          //
+  const [submitting, setSubmitting] = useState(false);
 
   // 장소 정보 컴포넌트에 표시할 POI정보는 selectedPOI 기반
   // 추후 지도 클릭으로 얻은 상세정보(d)도 보여주려면 컴포넌트 생성 후 별도 로컬 상태(infoPoi) 도입 또는 selectedPOI 전역 업데이트 필요
@@ -338,6 +341,7 @@ const Map = ({
 
   // 코스 상세를 불러와서 작성
   if (s.courseId) {
+    setMode('edit'); 
     editCourseIdRef.current = s.courseId;
     (async () => {
       const token = localStorage.getItem("accessToken") ?? "";
@@ -366,6 +370,10 @@ const Map = ({
         categoryName: data.course_category?.name ?? "",
       })
     })();
+  } else {
+    setMode('create');
+    editCourseIdRef.current = null;
+    setInitialForm(null);
   }
 
   // 뒤로가기/새로고침 시 또 열리지 않도록 state 비우기
@@ -440,26 +448,37 @@ const Map = ({
     setCoursePlaces((prev) => prev.filter((p) => p.id !== id));
   };
 
-  //          event handler: 코스 최종 등록 이벤트 핸들러          //
-  const handleSubmitCourse = async (dto: CourseCreateRequestDto) => {
+  //          event handler: 코스 최종 등록,수정 공통 이벤트 핸들러          //
+  const handleSubmitCourse = async ({courseId, payload}: CourseSubmitType) => {
   try {
-      const accessToken = localStorage.getItem("accessToken")!; // 토큰 무조건 존재 가정
-      console.log("[REQ] createCourse dto =", dto);
-      const res = await createCourse(dto, accessToken);
-      console.log("[RES] createCourse =", res);
+      setSubmitting(true);
+      const accessToken = localStorage.getItem("accessToken")!; 
+    
+
+      // setMode를 바꾸기 전에 현재 모드 저장(알림 메시지용)
+      const currentMode = mode;
+
+      const res = (currentMode === 'edit' && courseId)
+      ? await updateCourse(courseId, payload, accessToken) // PUT /api/courses/{id}
+      : await createCourse(payload, accessToken);          // POST /api/courses
+      console.log("[RES] create/update =", res);
 
       // 성공 후 UI 정리
       setIsCoursePlaceCreatePanelOpen(false);
       setIsCoursePanelOpen(false);
       setCoursePlaces([]);
+      setMode('create');
+      editCourseIdRef.current = null;
 
       await Swal.fire({
         icon: "success",
-        title: "코스 등록 완료!",
-        text: "새로운 코스가 성공적으로 등록되었습니다.",
+        title: `코스 ${mode === 'edit' ? '수정' : '등록'} 완료!`,
+        text: `코스가 성공적으로 ${mode === 'edit' ? '수정' : '등록'}되었습니다.`,
       });
     } catch (e: any) {
       console.error("[ERROR] createCourse failed:", e?.message || e);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -502,7 +521,14 @@ const Map = ({
       {/* 최종 코스 등록 패널 */}
       {isCoursePlaceCreatePanelOpen && (
         <div className="absolute right-1/8 top-50">
-          <CoursePlaceCreate onCancel={handleCloseCoursePlaceCreate} initialValues={initialForm ?? undefined} places={coursePlaces} onSubmit={handleSubmitCourse} />
+          <CoursePlaceCreate 
+            onCancel={handleCloseCoursePlaceCreate} 
+            initialValues={initialForm ?? undefined} 
+            places={coursePlaces}
+            submitLabel={mode === 'edit' ? ('수정 완료') : ('등록 완료')}
+            courseId={mode === 'edit' ? editCourseIdRef.current ?? undefined : undefined}
+            onSubmit={handleSubmitCourse}
+          />
         </div>
       )}
 

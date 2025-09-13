@@ -1,22 +1,94 @@
 import { useState, useMemo, useEffect } from "react";
 import type { CoursePlaceType } from "../types/CoursePlaceType";
 import type { CourseCreateRequestDto, CoursePlaceDto } from "../types/CoursePlaceDto";
+import type { CourseSubmitType } from "../types/UpdateStateType";
+import { fetchCategoriesByPrefix } from "../apis/CourseCategoryApi";
+import { useDebounce } from "../hooks/useDebounce";
 
 // 부모 컴포넌트에서 전달받은 콜백함수 타입정의
 interface CoursePlaceCreateProps {
   onCancel: () => void;                             // 취소 버튼 클릭시 실행되는 콜백
   places: CoursePlaceType[];                        // 선택된 장소리스트
-  onSubmit: (payload: CourseCreateRequestDto) => void; // 입력 완료시 서버에 보낼 데이터를 전달하는 콜백
+  onSubmit: (args: CourseSubmitType) => void; // 입력 완료시 서버에 보낼 데이터를 전달하는 콜백
   initialValues?: { name: string; description: string; categoryName: string };
+  submitLabel?: string;
+  courseId?: number;                                 // 코스 수정시 넘길 코스ID
 }
 
 //          component: 코스 장소 등록 컴포넌트          //
-export default function CoursePlaceCreate({  onCancel, places, onSubmit, initialValues,}: CoursePlaceCreateProps) {
+export default function CoursePlaceCreate({  onCancel, places, onSubmit, initialValues, submitLabel = "입력 완료", courseId,}: CoursePlaceCreateProps) {
 
   //          states: 폼 데이터 상태 관리          //
   const [name, setName] = useState(initialValues?.name ?? "");
   const [category, setCategory] = useState(initialValues?.categoryName ?? "");
   const [description, setDescription] = useState(initialValues?.description ?? "");
+
+  //          states: 코스 카테고리 상태 관리          //
+  const [catQuery, setCatQuery] = useState(initialValues?.categoryName ?? "");
+  const debouncedCat = useDebounce(catQuery, 250);
+  const [catOptions, setCatOptions] = useState<{ id: number; content: string }[]>([]);
+  const [catOpen, setCatOpen] = useState(false);
+  const [catActive, setCatActive] = useState(0);
+
+  //          effect: initialValues 반영할 때 catQuery 동기화           //
+  useEffect(() => {
+    if (!initialValues) return;
+    setCatQuery(initialValues.categoryName ?? "");
+  }, [initialValues]);
+
+  //          effect: 입력 디바운스 후 서버 조회           //
+  useEffect(() => {
+    let ignore = false;
+    const run = async () => {
+      const q = debouncedCat.trim();
+      if (q.length < 1) { setCatOptions([]); setCatOpen(false); return; }
+
+      try {
+        const list = await fetchCategoriesByPrefix(q);
+        if (!ignore) {
+          setCatOptions(list.map(c => ({ id: c.category_id, content: c.content })));
+          setCatOpen(list.length > 0);
+          setCatActive(0);
+        }
+      } catch {
+        if (!ignore) { setCatOptions([]); setCatOpen(false); }
+      }
+    };
+    run();
+    return () => { ignore = true; };
+  }, [debouncedCat]);
+
+  //          effect: 바깥 클릭시 닫기           //
+  useEffect(() => {
+    const onDoc = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest?.("#cat-autocomplete")) setCatOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, []);
+
+  //           event handler: 코스 카테고리 입력 이벤트 핸들러           //
+  const handleCategoryChange = (v: string) => {
+    setCategory(v);      // 실제 폼 필드
+    setCatQuery(v);      // 검색어
+    setCatOpen(true);
+  };
+  //           event handler: 코스 카테고리 선택 이벤트 핸들러          //
+  const pickCategory = (text: string) => {
+    setCategory(text);
+    setCatQuery(text);
+    setCatOpen(false);
+  };
+
+  //          event handler: 키보드 입력 이벤트 핸들러          //
+  const onCatKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
+    if (!catOpen || catOptions.length === 0) return;
+    if (e.key === "ArrowDown") { e.preventDefault(); setCatActive(i => (i + 1) % catOptions.length); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); setCatActive(i => (i - 1 + catOptions.length) % catOptions.length); }
+    else if (e.key === "Enter") { e.preventDefault(); pickCategory(catOptions[catActive].content); }
+    else if (e.key === "Escape") { setCatOpen(false); }
+  };
 
   //          effect: 코스 수정시 가져온 코스 데이터 반영          //
   useEffect(() => {
@@ -33,10 +105,11 @@ export default function CoursePlaceCreate({  onCancel, places, onSubmit, initial
     `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
   // "HH:MM" 형태로 정규화
   const fommaterHHmm = (t?: string | null) => {
-  if (!t) return "00:00";                  // 비입력 시 기본값
+  if (!t || !t.includes(":")) return "00:00";           // 비입력 시 기본값
   const [h, m] = t.split(":");
-  const hh = pad(Number(h ?? 0));
-  const mm = pad(Number(m ?? 0));
+  // NaN 방지
+  const hh = isNaN(Number(h)) ? "00" : pad(Number(h));
+  const mm = isNaN(Number(m)) ? "00" : pad(Number(m));
   return `${hh}:${mm}`;
   };
   // CoursePlaceType -> CoursePlaceDto 매핑
@@ -102,7 +175,7 @@ export default function CoursePlaceCreate({  onCancel, places, onSubmit, initial
       course_places,                                
     };
     
-    onSubmit(payload);
+    onSubmit({courseId, payload});
   };
 
     //          render: 코스 장소 등록 컴포넌트 랜더링          //
@@ -124,7 +197,7 @@ export default function CoursePlaceCreate({  onCancel, places, onSubmit, initial
                         hover:bg-main-300 focus:outline-none focus:ring-2 
                         focus:ring-main-200/40"
             >
-            입력 완료
+            {submitLabel} 
             </button>
             <button
             type="button"

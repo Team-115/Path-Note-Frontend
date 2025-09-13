@@ -4,6 +4,7 @@ import type { GetUpdateCourseDto } from '../types/getUpdateCourseDto';
 
 const API_BASE_URL = "http://localhost:8080"; // 실제 서버 주소로 교체
 
+// 코스 작성
 export const createCourse = async (requestBody: CourseCreateRequestDto, accessToken: string) => {
   try {
     const response = await axios.post(
@@ -29,6 +30,7 @@ export const createCourse = async (requestBody: CourseCreateRequestDto, accessTo
   }
 };
 
+// 코스 수정
 export const updateCourse = async (
   courseId: number,
   requestBody: CourseCreateRequestDto, // 또는 CourseRequestDTO
@@ -58,6 +60,7 @@ export const updateCourse = async (
   }
 };
 
+// 코스 수정시 데이터 요청
 export const getCourseDetail = async (courseId: number, accessToken: string) => {
   const { data } = await axios.get<GetUpdateCourseDto>(
     `${API_BASE_URL}/api/courses/${courseId}`,
