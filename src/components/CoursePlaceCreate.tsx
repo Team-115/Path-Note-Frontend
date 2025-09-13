@@ -254,41 +254,47 @@ export default function CoursePlaceCreate({  onCancel, places, onSubmit, initial
         />
       </div>
 
-      {/* 코스 테마 해시 태그 */}
+      {/* 코스 해시 태그 */}
       <div className="grid grid-cols-[auto_1fr] font-bold gap-x-4 gap-y-2 items-start mb-3">
-        <label htmlFor="course-category" className="text-[13px] leading-9">코스 테마 해시 태그</label>
-        <input
-          id="course-category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          placeholder="예) 맛집투어"
-          className="h-9 w-full rounded-xl bg-main-100/50 px-3 text-[14px] outline-none focus:ring-2 focus:ring-main-200/50"
-        />
-        {catOpen && catOptions.length > 0 && (
-          <ul className="absolute z-20 mt-1 max-h-56 w-full overflow-auto rounded-xl border border-black/10 bg-white shadow-lg">
-            {catOptions.map((opt, i) => (
-              <li
-                key={opt.id}
-                onMouseDown={(e) => { e.preventDefault(); pickCategory(opt.content); }}
-                className={`cursor-pointer px-3 py-2 text-[14px] hover:bg-main-100/40 ${
-                  i === catActive ? "bg-main-100/60" : ""
-                }`}
-              >
-                {opt.content}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+        <label htmlFor="course-category" className="text-[13px] leading-9">해시 태그</label>
+        {/* 인풋처럼 보이는 래퍼 */}
+  <div
+    id="cat-combobox"
+    className="h-9 w-full rounded-xl bg-main-100/50 ring-1 ring-transparent
+               focus-within:ring-2 focus-within:ring-main-200/50
+               flex items-center px-2"
+    role="combobox"
+    aria-haspopup="listbox"
+    aria-expanded={false}
+  >
+    {/* 실제 입력칸: 배경 투명, 왼쪽 정렬 */}
+    <input
+      id="course-category"
+      value={catQuery}
+      onChange={(e) => handleCategoryChange(e.target.value)}
+      onFocus={() => { if (catOptions.length) setCatOpen(true); }}
+      onKeyDown={onCatKeyDown}
+      placeholder="예) 맛집투어"
+      className="flex-1 bg-transparent text-[14px] outline-none px-1"
+    />
 
-      {/* 이미지 업로드 */}
-      <div className="grid grid-cols-[auto_1fr] font-bold gap-x-4 gap-y-2 items-start mb-4">
-        <label className="text-[13px] leading-9">이미지 업로드</label>
-        <div className="w-12">
-          <div className=" rounded-2xl border-2 border-dashed border-main-100 bg-slate-100/70 flex items-center justify-center">
-            <span className="text-2xl text-main-200 select-none">＋</span>
-          </div>
-        </div>
+    {/* 오른쪽 추천 pill 집합 */}
+    {catOptions.length > 0 && (
+      <div className="ml-2 hidden sm:flex items-center gap-1 overflow-x-auto scrollbar-none">
+        {catOptions.slice(0, 5).map(opt => (
+          <button
+            key={opt.id}
+            onMouseDown={(e) => { e.preventDefault(); pickCategory(opt.content); }}
+            className="shrink-0 rounded-full px-2.5 py-1 text-[12px]
+                       bg-main-200  hover:bg-main-300 text-white"
+            title={opt.content}
+          >
+            {opt.content}
+          </button>
+        ))}
+      </div>
+    )}
+  </div>
       </div>
 
       {/* 코스 설명 */}
