@@ -4,6 +4,7 @@ import type { CourseCreateRequestDto, CoursePlaceDto } from "../types/CoursePlac
 import type { CourseSubmitType } from "../types/UpdateStateType";
 import { fetchCategoriesByPrefix } from "../apis/CourseCategoryApi";
 import { useDebounce } from "../hooks/useDebounce";
+import { FaRegPaperPlane, FaHashtag, FaRegStickyNote, FaRegImage, FaClock, FaStore, FaTag } from "react-icons/fa";
 
 // 부모 컴포넌트에서 전달받은 콜백함수 타입정의
 interface CoursePlaceCreateProps {
@@ -180,10 +181,10 @@ export default function CoursePlaceCreate({  onCancel, places, onSubmit, initial
 
     //          render: 코스 장소 등록 컴포넌트 랜더링          //
     return (
-    <section className="rounded-3xl bg-white shadow-lg ring-1 ring-black/5 p-5 md:p-6">
+    <section className="rounded-3xl bg-white/90 shadow-lg ring-1 ring-black/5 md:p-5">
       
       {/* 패널 타이틀 */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-3">
         <div className="text-lg font-extrabold leading-8 text-gray-900">
             코스 생성
         </div>
@@ -210,62 +211,70 @@ export default function CoursePlaceCreate({  onCancel, places, onSubmit, initial
             취소
             </button>
         </div>
-        </div>
+        
+      </div>
 
       {/* 장소리스트 */}
-      <div className="text-[13px] font-bold leading-8">장소 리스트</div>
-      <ul className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[13px] text-gray-900 mb-4">
-        {places.length === 0 ? (
-          <li className="text-[12px] text-gray-400">선택된 장소가 없음</li>
-        ) : (
-          places.map((p, idx) => (
-            <li key={p.id} className="flex items-start gap-1.5">
-              <div className="flex flex-col">
-                <div className="flex items-center gap-1">
-                  <span className="w-5 text-right font-semibold text-[14px]">{idx + 1}.</span>
-                  <span className="text-[14px] text-gray-900 truncate max-w-[12rem]">
-                    {p.name}
-                  </span>
+      <div className="mb-1 flex items-start gap-3">
+        <FaStore aria-hidden className="text-gray-500 text-[18px] mt-1" />
+        <ul className="flex flex-wrap items-center gap-x-4 gap-y-5 text-[13px] text-gray-900">
+          {places.length === 0 ? (
+            <li className="text-[12px] text-gray-400">선택된 장소가 없음</li>
+          ) : (
+            places.map((p, idx) => (
+              <li key={p.id} className="flex items-start gap-1.5 min-w-0">
+                <div className="flex flex-col">
+                  <div className="flex items-center gap-1">
+                    <span className="w-5 text-right font-semibold text-[14px]">{idx + 1}.</span>
+                    <span className="text-[14px] text-gray-900 truncate max-w-[12rem]">{p.name}</span>
+                  </div>
+                  {!!p.category && (
+                    <span className="text-[12px] text-gray-400 self-end min-h-[16px]">{p.category}</span>
+                  )}
                 </div>
-        
-                <span className="text-[12px] text-gray-400 self-end min-h-[16px] ${cat ? '' : 'invisible'">{p.category}</span>
-              </div>
-            </li>
-          ))
-        )}
-      </ul>
+              </li>
+            ))
+          )}
+        </ul>
+      </div>
 
       <div className="flex justify-between mb-2">
         {/* 일정 소요 시간 */}
-        <div className="grid grid-cols-[auto_1fr] gap-x-2 items-center mb-2">
-          <label className="text-[13px] font-bold">소요시간 아이콘</label>
-          <div className="text-[12px] text-gray-400">{courseDurationLabel}</div>
+        <div className="grid grid-cols-[auto_1fr] gap-x-3 items-center mb-1">
+          <div className="flex items-center gap-5">
+            <FaClock className="flex h-8 items-center justify-center text-gray-500 text-[18px]"/>
+            <span className="text-[14px] text-gray-400">{courseDurationLabel}</span>
+          </div>
         </div>
         {/* 이미지 업로드 */}
-        <div className="grid grid-cols-[auto_1fr] gap-x-2 items-center mb-2">
-          <label className="text-[13px] font-bold">이미지 아이콘</label>
-          <div className="text-[12px] text-gray-400">업로드</div>
-        </div>
+        <button type="button" className="flex items-center gap-2 text-[12px] text-gray-500 hover:text-gray-900">
+          <FaRegImage className="flex h-8 items-center justify-center text-gray-500 text-[22px]"/>
+          <span>이미지 업로드</span>
+        </button>
       </div>
       {/* 코스 이름 */}
-      <div className="grid grid-cols-[auto_1fr]  font-bold  gap-x-4 gap-y-2 items-start mb-3">
-        <label htmlFor="course-name" className="text-[13px] leading-9">제목 아이콘</label>
+      <div className="grid grid-cols-[auto_1fr] gap-x-4 font-bold items-start mb-3">
+        <label htmlFor="course-name">
+          <FaRegPaperPlane className="flex h-8 items-center justify-center text-gray-500 text-[18px]"/>
+        </label>
         <input
           id="course-name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="코스 이름"
-          className="h-9 w-full rounded-xl bg-main-100/50 px-3 text-[14px]"
+          className="h-8 w-full rounded-xl bg-main-100/50 px-3 text-[14px] bo focus-within:ring-2 focus-within:ring-main-200/50"
         />
       </div>
 
       {/* 코스 해시 태그 */}
-      <div className="grid grid-cols-[auto_1fr] font-bold gap-x-4 gap-y-2 items-start mb-3">
-        <label htmlFor="course-category" className="text-[13px] leading-9">태그 아이콘</label>
+      <div className="grid grid-cols-[auto_1fr] font-bold gap-x-4 items-start mb-3">
+        <label htmlFor="course-category">
+          <FaHashtag className="flex h-8 items-center justify-center text-gray-500 text-[18px]"/>
+        </label>
         {/* 인풋처럼 보이는 래퍼 */}
         <div
           id="cat-combobox"
-          className="h-9 w-full rounded-xl bg-main-100/50 ring-1 ring-transparent
+          className="h-8 w-full rounded-xl bg-main-100/50 ring-1 ring-transparent
                     focus-within:ring-2 focus-within:ring-main-200/50
                     flex items-center px-2"
           role="combobox"
@@ -304,7 +313,9 @@ export default function CoursePlaceCreate({  onCancel, places, onSubmit, initial
 
       {/* 코스 설명 */}
       <div className="grid grid-cols-[auto_1fr] font-bold  gap-x-4 gap-y-2 items-start">
-        <label htmlFor="course-desc" className="text-[13px] leading-10">설명 아이콘</label>
+        <label htmlFor="course-desc" className="text-[15px] leading-10 inline-flex items-center gap-2">
+          <FaRegStickyNote className="flex h-8 items-center justify-center text-gray-500 text-[18px]"/>
+        </label>
         <textarea
           id="course-desc"
           value={description}
