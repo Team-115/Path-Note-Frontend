@@ -235,76 +235,81 @@ export default function CoursePlaceCreate({  onCancel, places, onSubmit, initial
         )}
       </ul>
 
-      {/* 일정 요약 */}
-      <div className="grid grid-cols-[auto_1fr]  gap-x-4 items-center mb-4">
-        <label className="text-[13px] font-bold">코스 소요 시간</label>
-          <div className="text-[13px] text-gray-500">{courseDurationLabel}</div>
+      <div className="flex justify-between mb-2">
+        {/* 일정 소요 시간 */}
+        <div className="grid grid-cols-[auto_1fr] gap-x-2 items-center mb-2">
+          <label className="text-[13px] font-bold">소요시간 아이콘</label>
+          <div className="text-[12px] text-gray-400">{courseDurationLabel}</div>
+        </div>
+        {/* 이미지 업로드 */}
+        <div className="grid grid-cols-[auto_1fr] gap-x-2 items-center mb-2">
+          <label className="text-[13px] font-bold">이미지 아이콘</label>
+          <div className="text-[12px] text-gray-400">업로드</div>
+        </div>
       </div>
-
       {/* 코스 이름 */}
       <div className="grid grid-cols-[auto_1fr]  font-bold  gap-x-4 gap-y-2 items-start mb-3">
-        <label htmlFor="course-name" className="text-[13px] leading-9">코스 이름</label>
-        
+        <label htmlFor="course-name" className="text-[13px] leading-9">제목 아이콘</label>
         <input
           id="course-name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="예) 빵길"
-          className="h-9 w-full rounded-xl bg-main-100/50 px-3 text-[14px] outline-none focus:ring-2 focus:ring-main-200/50"
+          placeholder="코스 이름"
+          className="h-9 w-full rounded-xl bg-main-100/50 px-3 text-[14px]"
         />
       </div>
 
       {/* 코스 해시 태그 */}
       <div className="grid grid-cols-[auto_1fr] font-bold gap-x-4 gap-y-2 items-start mb-3">
-        <label htmlFor="course-category" className="text-[13px] leading-9">해시 태그</label>
+        <label htmlFor="course-category" className="text-[13px] leading-9">태그 아이콘</label>
         {/* 인풋처럼 보이는 래퍼 */}
-  <div
-    id="cat-combobox"
-    className="h-9 w-full rounded-xl bg-main-100/50 ring-1 ring-transparent
-               focus-within:ring-2 focus-within:ring-main-200/50
-               flex items-center px-2"
-    role="combobox"
-    aria-haspopup="listbox"
-    aria-expanded={false}
-  >
-    {/* 실제 입력칸: 배경 투명, 왼쪽 정렬 */}
-    <input
-      id="course-category"
-      value={catQuery}
-      onChange={(e) => handleCategoryChange(e.target.value)}
-      onFocus={() => { if (catOptions.length) setCatOpen(true); }}
-      onKeyDown={onCatKeyDown}
-      placeholder="예) 맛집투어"
-      className="flex-1 bg-transparent text-[14px] outline-none px-1"
-    />
+        <div
+          id="cat-combobox"
+          className="h-9 w-full rounded-xl bg-main-100/50 ring-1 ring-transparent
+                    focus-within:ring-2 focus-within:ring-main-200/50
+                    flex items-center px-2"
+          role="combobox"
+          aria-haspopup="listbox"
+          aria-expanded={false}
+        >
+          {/* 실제 입력칸: 배경 투명, 왼쪽 정렬 */}
+          <input
+            id="course-category"
+            value={catQuery}
+            onChange={(e) => handleCategoryChange(e.target.value)}
+            onFocus={() => { if (catOptions.length) setCatOpen(true); }}
+            onKeyDown={onCatKeyDown}
+            placeholder="코스 해시태그"
+            className="flex-1 bg-transparent text-[14px] outline-none px-1"
+          />
 
-    {/* 오른쪽 추천 pill 집합 */}
-    {catOptions.length > 0 && (
-      <div className="ml-2 hidden sm:flex items-center gap-1 overflow-x-auto scrollbar-none">
-        {catOptions.slice(0, 5).map(opt => (
-          <button
-            key={opt.id}
-            onMouseDown={(e) => { e.preventDefault(); pickCategory(opt.content); }}
-            className="shrink-0 rounded-full px-2.5 py-1 text-[12px]
-                       bg-main-200  hover:bg-main-300 text-white"
-            title={opt.content}
-          >
-            {opt.content}
-          </button>
-        ))}
-      </div>
-    )}
-  </div>
+          {/* 오른쪽 추천 pill 집합 */}
+          {catOptions.length > 0 && (
+            <div className="ml-2 hidden sm:flex items-center gap-1 overflow-x-auto scrollbar-none">
+              {catOptions.slice(0, 5).map(opt => (
+                <button
+                  key={opt.id}
+                  onMouseDown={(e) => { e.preventDefault(); pickCategory(opt.content); }}
+                  className="shrink-0 rounded-full px-2.5 py-1 text-[12px]
+                            bg-main-200  hover:bg-main-300 text-white"
+                  title={opt.content}
+                >
+                  {opt.content}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* 코스 설명 */}
       <div className="grid grid-cols-[auto_1fr] font-bold  gap-x-4 gap-y-2 items-start">
-        <label htmlFor="course-desc" className="text-[13px] leading-10">코스 설명</label>
+        <label htmlFor="course-desc" className="text-[13px] leading-10">설명 아이콘</label>
         <textarea
           id="course-desc"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="예) 성심당에 대전이 있지"
+          placeholder="코스에 대해 설명해주세요"
           className="w-full h-40 md:h-48 rounded-2xl bg-main-100/50 px-3 py-2 text-[14px] outline-none resize-none focus:ring-2 focus:ring-main-200/50"
         />
       </div>

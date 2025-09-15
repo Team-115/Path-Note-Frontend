@@ -539,20 +539,23 @@ const Map = ({
           <div className="flex h-full flex-col">
             <header className="flex items-center justify-between px-4 pt-4 pb-2">
               <h2 className="text-lg font-extrabold text-gray-800">장소 리스트</h2>
-              <button
-                type="button"
-                onClick={() => setIsCoursePlaceCreatePanelOpen(true)}
-                className="inline-flex items-center rounded-xl bg-main-200 px-3 py-1.5 text-white text-[13px] font-medium shadow-sm hover:bg-main-300 focus:outline-none focus:ring-2 focus:ring-main-200/40"
-              >
-                코스 등록
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsCoursePanelOpen(false)}
-                className="rounded-xl bg-main-200 px-3 py-1.5 text-white text-[13px] hover:bg-main-300"
-              >
-                닫기
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsCoursePlaceCreatePanelOpen(true)}
+                  className="inline-flex items-center rounded-xl bg-main-200 px-3 py-1.5 text-white text-[13px] font-medium shadow-sm hover:bg-main-300 "
+                >
+                  코스 등록
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsCoursePanelOpen(false)}
+                  className="rounded-xl bg-main-200 px-3 py-1.5 text-white text-[13px] hover:bg-main-300"
+                >
+                  닫기
+                </button>
+              </div>
+              
             </header>
 
             <div className="mt-2 h-px w-full bg-black/5" />
