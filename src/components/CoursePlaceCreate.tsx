@@ -262,7 +262,7 @@ export default function CoursePlaceCreate({  onCancel, places, onSubmit, initial
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="코스 이름"
-          className="h-8 w-full rounded-xl bg-main-100/50 px-3 text-[14px] bo focus-within:ring-2 focus-within:ring-main-200/50"
+          className="h-8 w-full rounded-xl bg-main-100/30 px-3 text-[14px] bo focus-within:ring-2 focus-within:ring-main-200/50"
         />
       </div>
 
@@ -274,7 +274,7 @@ export default function CoursePlaceCreate({  onCancel, places, onSubmit, initial
         {/* 인풋처럼 보이는 래퍼 */}
         <div
           id="cat-combobox"
-          className="h-8 w-full rounded-xl bg-main-100/50 ring-1 ring-transparent
+          className="h-8 w-full rounded-xl bg-main-100/30 ring-1 ring-transparent
                     focus-within:ring-2 focus-within:ring-main-200/50
                     flex items-center px-2"
           role="combobox"
@@ -321,7 +321,7 @@ export default function CoursePlaceCreate({  onCancel, places, onSubmit, initial
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="코스에 대해 설명해주세요"
-          className="w-full h-40 md:h-48 rounded-2xl bg-main-100/50 px-3 py-2 text-[14px] outline-none resize-none focus:ring-2 focus:ring-main-200/50"
+          className="w-full h-40 md:h-48 rounded-2xl bg-main-100/30 px-3 py-2 text-[14px] outline-none resize-none focus:ring-2 focus:ring-main-200/50"
         />
       </div>
     </section>
