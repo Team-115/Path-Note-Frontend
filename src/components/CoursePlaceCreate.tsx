@@ -4,7 +4,7 @@ import type { CourseCreateRequestDto, CoursePlaceDto } from "../types/CoursePlac
 import type { CourseSubmitType } from "../types/UpdateStateType";
 import { fetchCategoriesByPrefix } from "../apis/CourseCategoryApi";
 import { useDebounce } from "../hooks/useDebounce";
-import { FaRegPaperPlane, FaHashtag, FaRegStickyNote, FaRegImage, FaClock, FaStore, FaTag } from "react-icons/fa";
+import { FaRegPaperPlane, FaHashtag, FaRegStickyNote, FaRegImage, FaClock, FaStore} from "react-icons/fa";
 
 // 부모 컴포넌트에서 전달받은 콜백함수 타입정의
 interface CoursePlaceCreateProps {
