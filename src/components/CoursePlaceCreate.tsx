@@ -216,7 +216,7 @@ export default function CoursePlaceCreate({  onCancel, places, onSubmit, initial
 
       {/* 장소리스트 */}
       <div className="mb-1 flex items-start gap-3">
-        <FaStore aria-hidden className="text-gray-500 text-[18px] mt-1" />
+        <FaStore aria-hidden className="text-gray-500 text-[20px] mt-1" />
         <ul className="flex flex-wrap items-center gap-x-4 gap-y-5 text-[13px] text-gray-900">
           {places.length === 0 ? (
             <li className="text-[12px] text-gray-400">선택된 장소가 없음</li>
