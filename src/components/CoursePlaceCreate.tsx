@@ -26,10 +26,10 @@ export default function CoursePlaceCreate({  onCancel, places, onSubmit, initial
 
   //          states: 코스 카테고리 상태 관리          //
   const [catQuery, setCatQuery] = useState(initialValues?.categoryName ?? "");
-  const debouncedCat = useDebounce(catQuery, 250);
   const [catOptions, setCatOptions] = useState<{ id: number; content: string }[]>([]);
   const [catOpen, setCatOpen] = useState(false);
   const [catActive, setCatActive] = useState(0);
+  const debouncedCat = useDebounce(catQuery, 250);
 
   //          effect: initialValues 반영할 때 catQuery 동기화           //
   useEffect(() => {
@@ -59,7 +59,7 @@ export default function CoursePlaceCreate({  onCancel, places, onSubmit, initial
     return () => { ignore = true; };
   }, [debouncedCat]);
 
-  //          effect: 바깥 클릭시 닫기           //
+  //          effect: 바깥 클릭시 닫기          //
   useEffect(() => {
     const onDoc = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
@@ -154,7 +154,7 @@ export default function CoursePlaceCreate({  onCancel, places, onSubmit, initial
     if (places.length === 0) return "—";
     const firstArr = toMinutes((places[0] as any).arrivalTime);
     const lastArr  = toMinutes((places[places.length - 1] as any).arrivalTime);
-    if (firstArr == null || lastArr == null) return "—";
+    if (firstArr == null || lastArr == null) return "총 소요 시간";
 
     let diff = lastArr - firstArr;
     if (diff < 0) diff += 24 * 60; // 자정 넘김 처리(예: 23:30 → 01:00)
@@ -247,9 +247,9 @@ export default function CoursePlaceCreate({  onCancel, places, onSubmit, initial
           </div>
         </div>
         {/* 이미지 업로드 */}
-        <button type="button" className="flex items-center gap-2 text-[12px] text-gray-500 hover:text-gray-900">
-          <FaRegImage className="flex h-8 items-center justify-center text-gray-500 text-[22px]"/>
-          <span>이미지 업로드</span>
+        <button type="button" className="flex items-center gap-2 text-[12px] text-gray-500 hover:text-main-300">
+          <FaRegImage className="flex h-8 items-center justify-center text-gray-500 text-[24px]  hover:text-main-300"/>
+          <span>업로드</span>
         </button>
       </div>
       {/* 코스 이름 */}
@@ -260,9 +260,12 @@ export default function CoursePlaceCreate({  onCancel, places, onSubmit, initial
         <input
           id="course-name"
           value={name}
+          name="course_name"              // 브라우저 기록 키(바꾸면 과거 기록 매칭 끊김)
+          autoComplete="off"              // 자동완성/제안 끔
+          autoCorrect="off"               // iOS 자동교정 끔
           onChange={(e) => setName(e.target.value)}
           placeholder="코스 이름"
-          className="h-8 w-full rounded-xl bg-main-100/30 px-3 text-[14px] bo focus-within:ring-2 focus-within:ring-main-200/50"
+          className="h-8 w-full rounded-xl bg-main-100/30 px-3 text-[14px] focus:outline-none focus-within:ring-2 focus-within:ring-main-200/50"
         />
       </div>
 
@@ -285,6 +288,9 @@ export default function CoursePlaceCreate({  onCancel, places, onSubmit, initial
           <input
             id="course-category"
             value={catQuery}
+            name="course_category"
+            autoComplete="off"
+            autoCorrect="off"
             onChange={(e) => handleCategoryChange(e.target.value)}
             onFocus={() => { if (catOptions.length) setCatOpen(true); }}
             onKeyDown={onCatKeyDown}
