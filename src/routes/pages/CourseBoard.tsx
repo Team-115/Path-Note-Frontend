@@ -23,10 +23,12 @@ export default function CourseBoard() {
           course_name: course.course_name,
           time: "07:30 ~ 08:00",       // 임의
           duration: "30분",
-          tags: "#대학생 #대전 #일상 #IoT",
+          course_category: course.course_category || { category_id: 0, content: "카테고리 없음" },
           imgSrc: "src/images/school.png",
-          description: course.course_description
+          description: course.course_description,
+          created_at: course.created_at
         }));
+        console.log(rawCourses.data);
         setCourselist(convertedCourses);  // 변환된 코스 리스트를 상태에 저장
       } catch (error) {
         console.error("API 호출 실패 : ", error);

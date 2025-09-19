@@ -68,7 +68,7 @@ export default function MapWithCategory() {
               tags: "#대학생 #대전 #일상 #IoT",
               imgSrc: "src/images/school.png",
               description: course.course_description,
-              category: course.course_category,
+              course_category: course.course_category,
               course_places: course.course_places.map((place: any) => ({
                 ...place,
                 place_coordinate_x: place.place_coordinate_x, 
@@ -76,6 +76,7 @@ export default function MapWithCategory() {
               })),
               center_x: course.center_x, 
               center_y: course.center_y,
+              created_at: course.created_at,
             }));
             setCourselist(convertedCourses);
           } else {

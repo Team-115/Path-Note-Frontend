@@ -158,15 +158,8 @@ const onCommentKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
           <span>{course.course_name}</span>
         </div>
         <div className="flex items-center gap-2 flex-1 justify-center">
-          <FaClock className="flex h-8 items-center justify-center text-gray-500 text-[18px]"/>
-          <span>소요 시간</span>
-          <span className="text-gray-400 text-xs">
-            {course.time} / {course.duration}
-          </span>
-        </div>
-        <div className="flex items-center gap-2 flex-1 justify-center">
           <FaHashtag className="flex h-8 items-center justify-center text-gray-500 text-[18px]"/>
-          <span>{course.tags}</span>
+          <span>{course.course_category?.content}</span>
         </div>
       </div>
 

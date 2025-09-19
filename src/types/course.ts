@@ -9,5 +9,9 @@ export type CourseData = {
   tags: string;
   imgSrc: string;
   description: string;
-  category: string;
+  course_category: {
+    category_id: number;
+    content: string;
+  };
+  created_at: string;
 };
