@@ -295,8 +295,8 @@ const Map = ({
     const bounds = new Tmapv3.LatLngBounds();
 
     markers.forEach((place: { place_coordinate_x: string; place_coordinate_y: string; }) => {
-      const lat = parseFloat(place.place_coordinate_x);
-      const lng = parseFloat(place.place_coordinate_y);
+      const lng = parseFloat(place.place_coordinate_x);
+      const lat = parseFloat(place.place_coordinate_y);
       const position = new Tmapv3.LatLng(lat, lng);
       
       // 마커 생성
