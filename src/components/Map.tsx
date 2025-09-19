@@ -338,6 +338,7 @@ const Map = ({
 
       {/* 좌측 장소 리스트 패널 */}
       {isCoursePanelOpen && (
+        <>
         <aside className="absolute left-4 top-20 bottom-4 z-10 w-72 rounded-3xl bg-white/80 backdrop-blur shadow-xl ring-1 ring-black/10">
           <div className="flex h-full flex-col">
             <header className="flex items-center justify-between px-4 pt-4 pb-2">
@@ -377,6 +378,33 @@ const Map = ({
             </div>
           </div>
         </aside>
+        {/* 다음 장소 추천 리스트 패널 */}
+        <aside className="absolute left-[320px] top-20 bottom-4 z-10 w-72 rounded-3xl bg-white/80 backdrop-blur shadow-xl ring-1 ring-black/10">
+          <div className="flex h-full flex-col">
+            <header className="flex items-center justify-between px-4 pt-4 pb-2">
+              <h2 className="text-lg font-extrabold text-gray-800">다음 장소 추천</h2>
+            </header>
+            <div className="mt-2 h-px w-full bg-black/5" />
+            <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3">
+              {/* 예시로 같은 coursePlaces 보여줌 */}
+              {coursePlaces.map((p, idx) => (
+                <CoursePlaceItem
+                  key={`B-${p.id}`}
+                  id={p.id}
+                  index={idx + 1}
+                  name={p.name}
+                  address={p.address}
+                  phone={p.phone}
+                  arrivalTime={p.arrivalTime}
+                  departureTime={p.departureTime}
+                  onTimeChange={handlePlaceTimeChange}
+                  onRemove={handleRemovePlace}
+                />
+              ))}
+            </div>
+          </div>
+        </aside>
+      </>
       )}
     </div>
   );
