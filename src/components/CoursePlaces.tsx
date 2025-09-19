@@ -1,7 +1,4 @@
-import { IoStorefrontOutline } from "react-icons/io5";
-import { FaMapMarkerAlt } from "react-icons/fa";
-import { FaTags } from "react-icons/fa6";
-import { FcClock } from "react-icons/fc";
+import { FaClock, FaMapMarkerAlt, FaStore, FaTag } from "react-icons/fa";
 import type { CourseData } from "../types/course";
 import type { PlacesData } from "../types/places";
 
@@ -34,19 +31,19 @@ return (
             className="bg-white p-4 rounded-lg shadow-md border border-gray-200 space-y-2 text-sm"
           >
             <div className="flex items-center gap-2">
-              <IoStorefrontOutline className="text-2xl" />
+              <FaStore className="text-[20px] text-gray-500 translate-y-[1px]" aria-hidden />
               <span>{place.place_name}</span>
             </div>
             <div className="flex items-center gap-2">
-              <FaMapMarkerAlt className="text-2xl text-red-400" />
+              <FaMapMarkerAlt className="text-[20px] mt-0.5 text-gray-500" aria-hidden />
               <span>{place.place_address}</span>
             </div>
             <div className="flex items-center gap-2">
-              <FaTags className="text-2xl text-blue-400" />
+              <FaTag className="text-[16px] text-gray-500 translate-y-[1px]" aria-hidden />
               <span>{place.place_category}</span>
             </div>
             <div className="flex items-center gap-2">
-              <FcClock className="text-2xl" />
+              <FaClock className="flex h-8 items-center justify-center text-gray-500 text-[18px]"/>
               <span>
                 입장 시간: {new Date(place.place_enter_time).toLocaleTimeString()}
               </span>

@@ -1,5 +1,4 @@
-import { FaRegPaperPlane } from "react-icons/fa";
-import { FcClock } from "react-icons/fc";
+import { FaClock, FaStore } from "react-icons/fa";
 import type { CourseData } from "../types/course";
 
 type Props = {
@@ -17,11 +16,11 @@ export default function CourseList({ course, onSelect }: Props) {
       <img src={course.imgSrc} alt={course.course_name} className="w-24 h-20 object-cover rounded" />
       <div className="flex flex-col justify-between h-20">
         <h3 className="flex items-center gap-2 text-sm font-semibold">
-          <FaRegPaperPlane />
+          <FaStore className="text-[20px] text-gray-500 translate-y-[1px]" aria-hidden />
           {course.course_name}
         </h3>
         <div className="flex items-center gap-2 text-sm text-gray-500">
-          <FcClock />
+          <FaClock className="flex h-8 items-center justify-center text-gray-500 text-[18px]"/>
           {course.time} / {course.duration}
         </div>
         <div className="text-sm text-blue-500">{course.tags}</div>

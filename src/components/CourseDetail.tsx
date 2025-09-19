@@ -1,5 +1,4 @@
-import { FaRegPaperPlane, FaHashtag, FaRegHeart, FaHeart, FaCommentDots, FaChevronDown, FaChevronUp,} from "react-icons/fa";
-import { FcClock } from "react-icons/fc";
+import { FaRegPaperPlane, FaHashtag, FaRegHeart, FaHeart, FaCommentDots, FaChevronDown, FaChevronUp, FaClock} from "react-icons/fa";
 import type { CourseData } from "../types/course";
 import { useEffect, useState } from "react";
 import CommentItem from "./CommentItem";
@@ -155,18 +154,18 @@ const onCommentKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
 
       <div className="flex justify-between mt-5 w-full">
         <div className="flex items-center gap-2 flex-1 justify-center">
-          <FaRegPaperPlane className="text-2xl" />
+          <FaRegPaperPlane className="flex h-8 items-center justify-center text-gray-500 text-[18px]"/>
           <span>{course.course_name}</span>
         </div>
         <div className="flex items-center gap-2 flex-1 justify-center">
-          <FcClock className="text-2xl" />
+          <FaClock className="flex h-8 items-center justify-center text-gray-500 text-[18px]"/>
           <span>소요 시간</span>
           <span className="text-gray-400 text-xs">
             {course.time} / {course.duration}
           </span>
         </div>
         <div className="flex items-center gap-2 flex-1 justify-center">
-          <FaHashtag className="text-2xl text-blue-400" />
+          <FaHashtag className="flex h-8 items-center justify-center text-gray-500 text-[18px]"/>
           <span>{course.tags}</span>
         </div>
       </div>
