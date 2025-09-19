@@ -19,7 +19,7 @@ export default function CourseList({ course, onSelect }: Props) {
           <FaStore className="text-[20px] text-gray-500 translate-y-[1px]" aria-hidden />
           {course.course_name}
         </h3>
-        <div className="flex items-center gap-2 text-sm text-gray-500">
+        <div className="flex items-center gap-2 text-sm mt-1 text-gray-500">
           <FaTag className="text-[16px] text-gray-500 translate-y-[1px]" aria-hidden />
           {course.course_category?.content}
         </div>

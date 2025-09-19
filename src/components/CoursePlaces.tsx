@@ -35,20 +35,20 @@ return (
               <span>{place.place_name}</span>
             </div>
             <div className="flex items-center gap-2">
-              <FaMapMarkerAlt className="text-[20px] mt-0.5 text-gray-500" aria-hidden />
+              <FaMapMarkerAlt className="text-[20px] mt-0.5 -translate-x-0.5 text-gray-500" aria-hidden />
               <span>{place.place_address}</span>
             </div>
             <div className="flex items-center gap-2">
-              <FaTag className="text-[16px] text-gray-500 translate-y-[1px]" aria-hidden />
+              <FaTag className="text-[18px] text-gray-500 translate-y-[1px]" aria-hidden />
               <span>{place.place_category}</span>
             </div>
             <div className="flex items-center gap-2">
               <FaClock className="flex h-8 items-center justify-center text-gray-500 text-[18px]"/>
               <span>
-                입장 시간: {new Date(place.place_enter_time).toLocaleTimeString()}
+                출발 : {new Date(place.place_enter_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </span>
               <span>
-                퇴장 시간: {new Date(place.place_leave_time).toLocaleTimeString()}
+                / 도착 : {new Date(place.place_leave_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </span>
             </div>
           </div>

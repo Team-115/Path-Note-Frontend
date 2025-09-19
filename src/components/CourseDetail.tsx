@@ -161,6 +161,10 @@ const onCommentKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
           <FaHashtag className="flex h-8 items-center justify-center text-gray-500 text-[18px]"/>
           <span>{course.course_category?.content}</span>
         </div>
+        <div className="flex items-center gap-2 flex-1 justify-center text-gray-500">
+          <FaClock className="flex h-8 items-center justify-center text-gray-500 text-[18px]"/>
+          {course.created_at?.substring(0, 10)}
+        </div>
       </div>
 
       {/* ===== 좋아요/댓글 바 ===== */}
@@ -209,7 +213,7 @@ const onCommentKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
                 author={c.user.nickname}
                 text={c.content}
                 date={c.created_at}
-                profileURL={c.user.profilePresetURL}
+                profileURL="src/images/profile.jpg"
               />
             ))}
             {/* 댓글 입력창 */}
@@ -235,8 +239,8 @@ const onCommentKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
       </div>
 
       <div
-        className="mt-5 p-4 h-90 rounded-lg bg-opacity-50 shadow-md border border-gray-200 space-y-3 text-sm"
-        style={{ backgroundColor: "oklch(0.7928 0.0216 248.1 / 0.3)" }}
+        className="mt-5 p-4 h-90 rounded-lg bg-opacity-50 shadow-md border border-gray-200 space-y-3 text-sm bg-main-100/30"
+        // style={{ backgroundColor: "oklch(0.7928 0.0216 248.1 / 0.2)" }}
       >
         {course.description}
       </div>
