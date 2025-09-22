@@ -112,7 +112,7 @@ const Header = () => {
           time: "07:30 ~ 08:00",
           duration: "30분",
           course_category: `#${course.course_category?.content ?? ""}`,
-          imgSrc: "src/images/school.png",
+          imgSrc: `https://picsum.photos/600/400?random=${Math.floor(Math.random() * 10000)}`,
           description: course.course_description,
         }));
         setCourseResults(convertedResults);
