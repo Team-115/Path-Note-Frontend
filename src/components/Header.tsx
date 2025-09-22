@@ -111,9 +111,10 @@ const Header = () => {
           course_name: course.course_name,
           time: "07:30 ~ 08:00",
           duration: "30분",
-          course_category: `#${course.course_category?.content ?? ""}`,
+          course_category: course.course_category || { category_id: 0, content: "카테고리 없음" },
           imgSrc: `https://picsum.photos/600/400?random=${Math.floor(Math.random() * 10000)}`,
           description: course.course_description,
+          created_at: course.created_at
         }));
         setCourseResults(convertedResults);
         setSearchResults([]);
