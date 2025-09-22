@@ -105,7 +105,8 @@ const Header = () => {
             limit: 10
           }
         });
-        const convertedResults: CourseData[] = response.data.courses.map((course: any) => ({
+        console.log("코스 검색 응답:", response.data);
+        const convertedResults: CourseData[] = response.data.map((course: any) => ({
           course_id: course.course_id,
           course_name: course.course_name,
           time: "07:30 ~ 08:00",
