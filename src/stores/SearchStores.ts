@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import type { CourseData } from '../types/course';
 
 
 // POI 검색 결과 타입 정의
@@ -18,6 +19,7 @@ export interface POIResult {
 interface SearchState {
   keyword: string;
   searchResults: POIResult[];
+  courseResults: CourseData[];
   isSearching: boolean;
   selectedPOI: POIResult | null;
   isResultsVisible: boolean;
@@ -25,6 +27,7 @@ interface SearchState {
   // 상태를 업데이트하기 위한  함수들
   setKeyword: (keyword: string) => void;
   setSearchResults: (results: POIResult[]) => void;
+  setCourseResults: (results: CourseData[]) => void; 
   setIsSearching: (isSearching: boolean) => void;
   setSelectedPOI: (poi: POIResult | null) => void;
   setIsResultsVisible: (visible: boolean) => void;
@@ -36,6 +39,7 @@ interface SearchState {
 export const useSearchStore = create<SearchState>((set) => ({
   keyword: '',
   searchResults: [],
+  courseResults: [],
   isSearching: false,
   selectedPOI: null,
   isResultsVisible: false,
@@ -43,6 +47,7 @@ export const useSearchStore = create<SearchState>((set) => ({
   // 상태 업데이트하기 위한 함수들
   setKeyword: (keyword) => set({ keyword }),
   setSearchResults: (searchResults) => set({ searchResults }),
+  setCourseResults: (courseResults) => set({ courseResults }),
   setIsSearching: (isSearching) => set({ isSearching }),
   setSelectedPOI: (selectedPOI) => set({ selectedPOI }),
   setIsResultsVisible: (isResultsVisible) => set({ isResultsVisible }),
@@ -51,6 +56,7 @@ export const useSearchStore = create<SearchState>((set) => ({
   clearSearch: () => set({ 
     keyword: '', 
     searchResults: [], 
+    courseResults: [],
     isSearching: false, 
     selectedPOI: null,
     isResultsVisible: false 
