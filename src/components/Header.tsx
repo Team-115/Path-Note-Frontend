@@ -99,13 +99,18 @@ const Header = () => {
     setIsSearching(true);
     try {
       if (isCourseBoardPage) {
-        const response = await axios.post(`/api/search/courses`, { keyword: kw });
-        const convertedResults: CourseData[] = response.data.map((course: any) => ({
+        const response = await axios.get(`/api/courses/search`, {
+          params: {
+            keyword: kw,
+            limit: 10
+          }
+        });
+        const convertedResults: CourseData[] = response.data.courses.map((course: any) => ({
           course_id: course.course_id,
           course_name: course.course_name,
           time: "07:30 ~ 08:00",
           duration: "30분",
-          tags: "#대학생 #대전 #일상 #IoT",
+          course_category: `#${course.course_category?.content ?? ""}`,
           imgSrc: "src/images/school.png",
           description: course.course_description,
         }));
